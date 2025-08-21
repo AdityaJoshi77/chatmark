@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { MdBookmarkAdd } from "react-icons/md";
-import { dummyBookmarks } from "./dummyData";
+
 
 interface Bookmark {
   id: number;
@@ -10,14 +10,15 @@ interface Bookmark {
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [bookmarks, setBookmarks] = useState<Bookmark[] | []>(dummyBookmarks);
+  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState("");
 
-  // Temporary snippet for demo (later comes from selected bubble)
+  // temporary snippet for demo (later comes from selected bubble)
   const dummySnippet =
-    "This is a preview of the selected message snippet. Giving a tint, even a faint one at that, poses a UX problem. The user who does not wish to add a bookmark will be slightly annoyed by the tint if he does not wish to create a bookmark. I believe sticking with border highlighting is good.";
+    "This is a preview of the selected message snippet Giving a tint, even a faint one at that poses a ux problem. The user who does not wish to add a bookmark will be slightly annoyed by the tint if he does not wish to create a bookmark I believe sticking with border higlighting is good.";
 
+  console.log('The App component attempted a render, but something went wrong');
   const handleSave = () => {
     if (!title.trim()) return;
     setBookmarks([
@@ -34,7 +35,7 @@ function App() {
       {!isOpen && (
         <button
           className="fixed top-40 right-6 flex items-center justify-center bg-gray-600 text-gray-100 w-10 h-10 rounded-full shadow-lg hover:bg-gray-500 transition cursor-pointer z-50"
-          onClick={() => setIsOpen(true)}
+          onClick={() => setIsOpen(!isOpen)}
           title="Open ChatMark"
         >
           <MdBookmarkAdd size={20} />
@@ -43,9 +44,8 @@ function App() {
 
       {/* Side Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 dark:bg-gray-600 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-40 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 h-full w-80 dark:bg-gray-600 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-40
+          ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="p-4 h-full flex flex-col">
           {/* Header */}
@@ -76,8 +76,20 @@ function App() {
               </p>
             )}
 
+            {bookmarks.map((bm) => (
+              <div
+                key={bm.id}
+                className="p-2 border border-gray-300 dark:border-gray-500 rounded dark:text-gray-200"
+              >
+                <p className="font-semibold">{bm.title}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-300 truncate">
+                  {bm.snippet}
+                </p>
+              </div>
+            ))}
+
             {/* Add Bookmark Form */}
-            {adding ? (
+            {adding && (
               <div className="flex-grow p-3 border border-dashed border-gray-400 rounded-md bg-gray-50 dark:bg-gray-700">
                 <label className="block text-sm font-semibold mb-1 dark:text-gray-200">
                   Title
@@ -107,18 +119,6 @@ function App() {
                   </button>
                 </div>
               </div>
-            ) : (
-              bookmarks.map((bm) => (
-                <div
-                  key={bm.id}
-                  className="p-2 border border-gray-300 dark:border-gray-500 rounded dark:text-gray-200"
-                >
-                  <p className="font-semibold">{bm.title}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-300 truncate">
-                    {bm.snippet}
-                  </p>
-                </div>
-              ))
             )}
           </div>
 

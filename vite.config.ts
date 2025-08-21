@@ -4,20 +4,15 @@ import { resolve } from "path";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import tailwindcss from "@tailwindcss/vite";
 
-// https://vite.dev/config/
 export default defineConfig(({ command }) => {
-  // DEV: Serve root UI for testing
   if (command === "serve") {
     return {
-      plugins: [react(),tailwindcss()],
-      root: ".", // root index.html
-      server: {
-        port: 5173,
-      },
+      plugins: [react(), tailwindcss()],
+      root: ".",
+      server: { port: 5173 },
     };
   }
 
-  // BUILD: Chrome extension build
   return {
     plugins: [
       react(),
@@ -26,8 +21,6 @@ export default defineConfig(({ command }) => {
         targets: [
           { src: "manifest.json", dest: "." },
           { src: "public/icons/*", dest: "icons" },
-          { src: "src/content/styles.css", dest: "content" },
-          { src: "src/popup/index.html", dest: "popup" },
         ],
       }),
     ],
@@ -35,16 +28,15 @@ export default defineConfig(({ command }) => {
       rollupOptions: {
         input: {
           background: resolve(__dirname, "src/background/index.ts"),
-          content: resolve(__dirname, "src/content/index.ts"),
-          popup: resolve(__dirname, "src/popup/main.tsx"),
+          content: resolve(__dirname, "src/content/content-entry.tsx"),
         },
         output: {
           entryFileNames: (chunk) => {
             if (chunk.name === "background") return "background/index.js";
             if (chunk.name === "content") return "content/index.js";
-            if (chunk.name === "popup") return "assets/popup.js";
             return "assets/[name].js";
           },
+          format: "esm", // ✅ Use ESM instead of IIFE
           chunkFileNames: "assets/[name].js",
           assetFileNames: "assets/[name].[ext]",
         },
