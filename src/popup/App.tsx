@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { MdBookmarkAdd } from "react-icons/md";
-import { dummyBookmarks } from "./dummyData";
+
 
 interface Bookmark {
   id: number;
@@ -10,7 +10,7 @@ interface Bookmark {
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>(dummyBookmarks);
+  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState("");
 
