@@ -12,6 +12,7 @@ export function initSelectionListener() {
 }
 
 function handleSelectionChange() {
+  console.log('The selectionListener was fired');
   const selection = window.getSelection();
   if (!selection || selection.toString().trim() === "") {
     removeIcon();

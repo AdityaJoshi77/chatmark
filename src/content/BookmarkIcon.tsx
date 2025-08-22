@@ -8,6 +8,7 @@ interface BookmarkIconProps {
 }
 
 const BookmarkIcon: React.FC<BookmarkIconProps> = ({ top, left, onClick }) => {
+  console.log('The bookmark icon attempted render');
   return (
     <button
       style={{
