@@ -25,6 +25,7 @@ function App() {
 
   useEffect(() => {
     openPanelFn = (newSnippet?: string, bubble?: HTMLElement) => {
+      console.log('Parent Bubble Fetched : ', bubble);
       setSnippet(newSnippet || "");
       setAnchor(bubble || null);
       setIsPanelOpen(true);
@@ -74,6 +75,7 @@ function App() {
   const handleBookmarkClick = async (bm: BookmarkData) => {
     try {
       scrollToAndHighlight(bm.anchor, bm.snippet);
+      setIsPanelOpen(false);
     } catch (err) {
       console.error("Failed to load highlighter:", err);
     }

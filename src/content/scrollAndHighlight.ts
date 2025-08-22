@@ -5,16 +5,47 @@ export function scrollToAndHighlight(selector: string, snippet?: string) {
   console.log("Firing scrollToAndHighlight.....");
   bubble.scrollIntoView({ behavior: "smooth", block: "center" });
 
-  // ✅ add border highlight
-  bubble.style.outline = "3px solid yellow";
-  bubble.style.outlineOffset = "3px";
-  bubble.style.background = "cyan";
-  bubble.style.transition = "outline 0.3s ease-in-out background 0.3s ease-in-out";
+  // 👉 target the first child instead of the bubble itself
+  const target = bubble.firstElementChild as HTMLElement | null;
+  if (!target) return;
+
+  // ✅ inject blinking animation dynamically
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes smoothBlink {
+      0%, 100% {
+        background-color: inherit;
+        outline-color: inherit;
+      }
+      50% {
+        background-color: #d1d5db; /* gray-300 */
+        outline-color: white;
+      }
+    }
+    .blink-highlight {
+      outline: 3px solid inherit;
+      outline-offset: 3px;
+      animation: smoothBlink 1s ease-in-out 3; /* 3 blinks */
+    }
+  `;
+  document.head.appendChild(style);
+
+  target.classList.add("blink-highlight");
+
+  // remove styles after animation ends
+  target.addEventListener(
+    "animationend",
+    () => {
+      target.classList.remove("blink-highlight");
+      target.style.outline = "";
+      style.remove(); // cleanup the injected <style>
+    },
+    { once: true }
+  );
 
   if (snippet) {
     const range = document.createRange();
-    const walker = document.createTreeWalker(bubble, NodeFilter.SHOW_TEXT);
-    let found = false;
+    const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT);
 
     while (walker.nextNode()) {
       const node = walker.currentNode as Text;
@@ -26,26 +57,8 @@ export function scrollToAndHighlight(selector: string, snippet?: string) {
         const mark = document.createElement("mark");
         mark.style.backgroundColor = "yellow";
         range.surroundContents(mark);
-
-        found = true;
         break;
       }
     }
-
-    if (found) {
-      setTimeout(() => {
-        const mark = bubble.querySelector("mark");
-        if (mark) {
-          mark.replaceWith(document.createTextNode(mark.textContent || ""));
-        }
-      }, 2000);
-    }
   }
-
-  // ✅ remove border highlight after 2 seconds
-  setTimeout(() => {
-    bubble.style.outline = "";
-    bubble.style.background= "inherit";
-    bubble.style.transition = "outline 1s ease-in-out background 1s ease-in-out";
-  }, 2000);
 }
