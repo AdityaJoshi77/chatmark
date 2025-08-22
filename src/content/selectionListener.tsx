@@ -30,13 +30,16 @@ function handleSelectionChange() {
   const range = selection.getRangeAt(0);
   const parentBubble = range.startContainer.parentElement?.closest(
     "[data-message-author-role]"
-  );
+  ) as HTMLElement;
+  // const role = parentBubble.dataset.messageAuthorRole;
+  // console.log("Found parent bubble with role:", role);
 
   if (!parentBubble) {
     console.log("Could not find parentBubble of the selection text");
     removeIcon();
     return;
   }
+  console.log("parentBubble : ", parentBubble);
 
   const rect = range.getBoundingClientRect();
   if (!rect) {
@@ -50,7 +53,7 @@ function handleSelectionChange() {
     rect.bottom + window.scrollY + offset,
     window.scrollY + offset
   );
-  const left = rect.left + window.scrollX;
+  const left = rect.right + window.scrollX;
 
   renderIcon(top, left, selection.toString(), parentBubble);
 }
@@ -59,7 +62,7 @@ function renderIcon(
   top: number,
   left: number,
   snippet: string,
-  bubble: Element
+  bubble: HTMLElement
 ) {
   if (!iconContainer) {
     iconContainer = document.createElement("div");
