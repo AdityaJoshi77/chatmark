@@ -1,31 +1,50 @@
-import { useState } from "react";
-import { MdBookmarkAdd } from "react-icons/md";
-import { dummyBookmarks } from "./dummyData";
-
-interface Bookmark {
-  id: number;
-  title: string;
-  snippet: string;
-}
+import { useState, useEffect } from "react";
+import { MdBookmarkAdd, MdDeleteForever } from "react-icons/md";
+import { dummyBookmarks } from "../dummyData";
+import type { BookmarkData } from "../content/types";
+import { getBookmarks, saveBookmarks, clearBookmarks } from "../content/storage";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [bookmarks, setBookmarks] = useState<Bookmark[] | []>(dummyBookmarks);
+  const [bookmarks, setBookmarks] = useState<BookmarkData[]>(dummyBookmarks);
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState("");
 
-  // Temporary snippet for demo (later comes from selected bubble)
-  const dummySnippet =
-    "This is a preview of the selected message snippet. Giving a tint, even a faint one at that, poses a UX problem. The user who does not wish to add a bookmark will be slightly annoyed by the tint if he does not wish to create a bookmark. I believe sticking with border highlighting is good.";
+  useEffect(() => {
+    const loadBookmarks = async () => {
+      const stored = await getBookmarks();
+      setBookmarks(stored);
+    };
 
-  const handleSave = () => {
+    loadBookmarks();
+  }, []);
+
+  // Save new bookmark
+  const handleSave = async () => {
     if (!title.trim()) return;
-    setBookmarks([
-      ...bookmarks,
-      { id: Date.now(), title, snippet: dummySnippet },
-    ]);
+
+    const newBookmark: BookmarkData = {
+      id: Date.now().toString(),
+      title,
+      snippet: "Dummy snippet", // later will be from selection
+      role: "user",
+      timestamp: Date.now(),
+      anchor: "sampleBubbleId",
+      selectionText: "Dummy Selection Text",
+    };
+
+    const updated = [...bookmarks, newBookmark];
+    setBookmarks(updated);
     setTitle("");
     setAdding(false);
+
+    await saveBookmarks(updated);
+  };
+
+  // Dev-only: clear all bookmarks
+  const handleClear = async () => {
+    await clearBookmarks();
+    setBookmarks([]);
   };
 
   return (
@@ -34,7 +53,7 @@ function App() {
       {!isOpen && (
         <button
           className="fixed top-40 right-6 flex items-center justify-center bg-gray-600 text-gray-100 w-10 h-10 rounded-full shadow-lg hover:bg-gray-500 transition cursor-pointer z-50"
-          onClick={() => setIsOpen(true)}
+          onClick={() => setIsOpen(!isOpen)}
           title="Open ChatMark"
         >
           <MdBookmarkAdd size={20} />
@@ -43,9 +62,8 @@ function App() {
 
       {/* Side Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 dark:bg-gray-600 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-40 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 h-full w-80 dark:bg-gray-600 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-40
+          ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="p-4 h-full flex flex-col">
           {/* Header */}
@@ -76,8 +94,33 @@ function App() {
               </p>
             )}
 
+            {bookmarks.map((bm) => (
+              <div
+                key={bm.id}
+                className="p-2 border border-gray-300 dark:border-gray-500 rounded dark:text-gray-200 flex justify-between items-start"
+              >
+                <div>
+                  <p className="font-semibold">{bm.title}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300 truncate">
+                    {bm.snippet}
+                  </p>
+                </div>
+                <button
+                  onClick={async () => {
+                    const updated = bookmarks.filter((b) => b.id !== bm.id);
+                    setBookmarks(updated);
+                    await saveBookmarks(updated);
+                  }}
+                  className="text-red-500 text-xs hover:text-red-400 ml-2"
+                  title="Delete bookmark"
+                >
+                  <MdDeleteForever/>
+                </button>
+              </div>
+            ))}
+
             {/* Add Bookmark Form */}
-            {adding ? (
+            {adding && (
               <div className="flex-grow p-3 border border-dashed border-gray-400 rounded-md bg-gray-50 dark:bg-gray-700">
                 <label className="block text-sm font-semibold mb-1 dark:text-gray-200">
                   Title
@@ -89,9 +132,6 @@ function App() {
                   className="border rounded px-2 py-1 w-full mb-2 text-sm dark:text-white placeholder:dark:text-gray-400"
                   placeholder="Enter bookmark title"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-300 mb-2 line-clamp-6 my-2">
-                  {dummySnippet}
-                </p>
                 <div className="flex justify-end space-x-2">
                   <button
                     onClick={() => setAdding(false)}
@@ -107,29 +147,29 @@ function App() {
                   </button>
                 </div>
               </div>
-            ) : (
-              bookmarks.map((bm) => (
-                <div
-                  key={bm.id}
-                  className="p-2 border border-gray-300 dark:border-gray-500 rounded dark:text-gray-200"
-                >
-                  <p className="font-semibold">{bm.title}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-300 truncate">
-                    {bm.snippet}
-                  </p>
-                </div>
-              ))
             )}
           </div>
 
-          {/* Add Bookmark Button */}
+          {/* Footer Buttons */}
           {!adding && (
-            <button
-              onClick={() => setAdding(true)}
-              className="mt-4 bg-gray-400 font-semibold text-black px-4 py-2 rounded hover:bg-slate-300 transition cursor-pointer"
-            >
-              + Add Bookmark
-            </button>
+            <div className="mt-4 flex flex-col gap-2">
+              <button
+                onClick={() => setAdding(true)}
+                className="bg-gray-400 font-semibold text-black px-4 py-2 rounded hover:bg-slate-300 transition cursor-pointer"
+              >
+                + Add Bookmark
+              </button>
+
+              {/* Dev-only Clear Button */}
+              {import.meta.env.MODE === "development" && (
+                <button
+                  onClick={handleClear}
+                  className="bg-red-500 text-white font-semibold px-4 py-2 rounded hover:bg-red-400 transition cursor-pointer"
+                >
+                  Clear All (Dev)
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
