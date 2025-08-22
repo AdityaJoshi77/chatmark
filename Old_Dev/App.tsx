@@ -4,6 +4,7 @@ import { dummyBookmarks } from "../dummyData";
 import type { BookmarkData } from "../content/types";
 import { getBookmarks, saveBookmarks, clearBookmarks } from "../content/storage";
 
+
 function App() {
   const [isOpen, setIsOpen] = useState(false);
   const [bookmarks, setBookmarks] = useState<BookmarkData[]>(dummyBookmarks);
@@ -18,6 +19,8 @@ function App() {
 
     loadBookmarks();
   }, []);
+
+  
 
   // Save new bookmark
   const handleSave = async () => {

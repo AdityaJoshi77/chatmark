@@ -1,22 +1,35 @@
 import { useState, useEffect } from "react";
 import { MdBookmarkAdd, MdDeleteForever } from "react-icons/md";
-
+// import { dummyBookmarks } from "../dummyData";
 import type { BookmarkData } from "./types";
-import { getBookmarks, saveBookmarks, clearBookmarks } from "./storage";
-import { dummyBookmarks } from "../dummyData";
+import { getBookmarks, saveBookmarks } from "./storage";
+
+// Function called by the floating selection icon
+let openPanelFn: (snippet?: string, bubble?: Element) => void;
+export function openPanelWithSnippet(snippet?: string, bubble?: Element) {
+  if (openPanelFn) openPanelFn(snippet, bubble);
+}
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [bookmarks, setBookmarks] = useState<BookmarkData[]>(dummyBookmarks);
-  const [adding, setAdding] = useState(false);
+  const [bookmarks, setBookmarks] = useState<BookmarkData[]>([]);
   const [title, setTitle] = useState("");
+  const [snippet, setSnippet] = useState("");
+  const [anchor, setAnchor] = useState<Element | null>(null);
+  const [showBookMarkForm, setShowBookMarkForm] = useState<boolean>(false);
 
   useEffect(() => {
+    // Assign the function so selectionListener can open panel
+    openPanelFn = (newSnippet?: string, bubble?: Element) => {
+      setSnippet(newSnippet || "");
+      setAnchor(bubble || null);
+      setIsOpen(true);
+    };
+
     const loadBookmarks = async () => {
       const stored = await getBookmarks();
       setBookmarks(stored);
     };
-
     loadBookmarks();
   }, []);
 
@@ -27,25 +40,29 @@ function App() {
     const newBookmark: BookmarkData = {
       id: Date.now().toString(),
       title,
-      snippet: "Dummy snippet", // later will be from selection
+      snippet, // from selection
       role: "user",
       timestamp: Date.now(),
-      anchor: "sampleBubbleId",
-      selectionText: "Dummy Selection Text",
+      anchor: bubbleToSelector(anchor),
+      selectionText: snippet,
+      url: window.location.href,
     };
 
     const updated = [...bookmarks, newBookmark];
     setBookmarks(updated);
     setTitle("");
-    setAdding(false);
+    setSnippet("");
+    setAnchor(null);
+    setIsOpen(false);
 
     await saveBookmarks(updated);
   };
 
-  // Dev-only: clear all bookmarks
-  const handleClear = async () => {
-    await clearBookmarks();
-    setBookmarks([]);
+  const handleBookmarkClick = (bm: BookmarkData) => {
+    // scroll & highlight handled in separate util
+    import("./scrollAndHighlight").then((mod) => {
+      mod.scrollToAndHighlight(bm.anchor, bm.snippet);
+    });
   };
 
   return (
@@ -79,7 +96,7 @@ function App() {
           </div>
 
           {/* Search Box */}
-          {!adding && (
+          {!showBookMarkForm && (
             <input
               type="text"
               placeholder="Search bookmarks..."
@@ -87,95 +104,96 @@ function App() {
             />
           )}
 
-          {/* Bookmarks List */}
-          <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar">
-            {bookmarks.length === 0 && !adding && (
-              <p className="text-sm text-gray-500 dark:text-gray-300">
-                No bookmarks yet
-              </p>
-            )}
-
-            {bookmarks.map((bm) => (
-              <div
-                key={bm.id}
-                className="p-2 border border-gray-300 dark:border-gray-500 rounded dark:text-gray-200 flex justify-between items-start"
-              >
-                <div>
-                  <p className="font-semibold">{bm.title}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-300 truncate">
-                    {bm.snippet}
-                  </p>
-                </div>
+          {/* Add Bookmark Form (if opened via selection) */}
+          {showBookMarkForm && (
+            <div className="flex-grow p-3 border border-dashed border-gray-400 rounded-md bg-gray-50 dark:bg-gray-700 mb-4">
+              <label className="block text-sm font-semibold mb-1 dark:text-gray-200">
+                Title
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="border rounded px-2 py-1 w-full mb-2 text-sm dark:text-white placeholder:dark:text-gray-400"
+                placeholder="Enter bookmark title"
+              />
+              <p className="text-xs text-gray-500 truncate">{snippet}</p>
+              <div className="flex justify-end space-x-2 mt-2">
                 <button
-                  onClick={async () => {
-                    const updated = bookmarks.filter((b) => b.id !== bm.id);
-                    setBookmarks(updated);
-                    await saveBookmarks(updated);
-                  }}
-                  className="text-red-500 text-xs hover:text-red-400 ml-2"
-                  title="Delete bookmark"
+                  onClick={() => setShowBookMarkForm(false)}
+                  className="px-3 py-1 text-sm rounded bg-gray-300 hover:bg-gray-200 dark:bg-gray-500 dark:hover:bg-gray-400 cursor-pointer"
                 >
-                  <MdDeleteForever/>
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="px-3 py-1 text-sm rounded bg-yellow-500 hover:bg-yellow-400 text-black font-semibold cursor-pointer"
+                >
+                  Save
                 </button>
               </div>
-            ))}
+            </div>
+          )}
 
-            {/* Add Bookmark Form */}
-            {adding && (
-              <div className="flex-grow p-3 border border-dashed border-gray-400 rounded-md bg-gray-50 dark:bg-gray-700">
-                <label className="block text-sm font-semibold mb-1 dark:text-gray-200">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="border rounded px-2 py-1 w-full mb-2 text-sm dark:text-white placeholder:dark:text-gray-400"
-                  placeholder="Enter bookmark title"
-                />
-                <div className="flex justify-end space-x-2">
+          {/* Bookmarks List */}
+          {!showBookMarkForm && (
+            <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar">
+              {bookmarks.length === 0 && (
+                <p className="text-sm text-gray-500 dark:text-gray-300">
+                  No bookmarks yet
+                </p>
+              )}
+              {bookmarks.map((bm) => (
+                <div
+                  key={bm.id}
+                  className="p-2 border border-gray-300 dark:border-gray-500 rounded dark:text-gray-200 flex justify-between items-start cursor-pointer"
+                  onClick={() => handleBookmarkClick(bm)}
+                >
+                  <div>
+                    <p className="font-semibold">{bm.title}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-300 truncate">
+                      {bm.snippet}
+                    </p>
+                  </div>
                   <button
-                    onClick={() => setAdding(false)}
-                    className="px-3 py-1 text-sm rounded bg-gray-300 hover:bg-gray-200 dark:bg-gray-500 dark:hover:bg-gray-400 cursor-pointer"
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      const updated = bookmarks.filter((b) => b.id !== bm.id);
+                      setBookmarks(updated);
+                      await saveBookmarks(updated);
+                    }}
+                    className="text-red-500 text-xs hover:text-red-400 ml-2"
+                    title="Delete bookmark"
                   >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    className="px-3 py-1 text-sm rounded bg-yellow-500 hover:bg-yellow-400 text-black font-semibold cursor-pointer"
-                  >
-                    Save
+                    <MdDeleteForever />
                   </button>
                 </div>
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Footer Buttons */}
-          {!adding && (
+          {!showBookMarkForm && (
             <div className="mt-4 flex flex-col gap-2">
               <button
-                onClick={() => setAdding(true)}
+                onClick={() => setShowBookMarkForm(true)}
                 className="bg-gray-400 font-semibold text-black px-4 py-2 rounded hover:bg-slate-300 transition cursor-pointer"
               >
                 + Add Bookmark
               </button>
-
-              {/* Dev-only Clear Button */}
-              {import.meta.env.MODE === "development" && (
-                <button
-                  onClick={handleClear}
-                  className="bg-red-500 text-white font-semibold px-4 py-2 rounded hover:bg-red-400 transition cursor-pointer"
-                >
-                  Clear All (Dev)
-                </button>
-              )}
             </div>
           )}
         </div>
       </div>
     </div>
   );
+}
+
+// helper: convert bubble element to CSS selector
+function bubbleToSelector(el: Element | null): string {
+  if (!el) return "";
+  const classes = Array.from(el.classList).join(".");
+  return `.${classes}`;
 }
 
 export default App;
