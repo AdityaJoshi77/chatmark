@@ -12,12 +12,14 @@ export function initSelectionListener() {
 }
 
 function handleSelectionChange() {
-  console.log('The selectionListener was fired');
+  console.log("The selectionListener was fired");
   const selection = window.getSelection();
   if (!selection || selection.toString().trim() === "") {
     removeIcon();
     return;
   }
+
+  console.log("Selection : ", selection.toString());
 
   // Ensure there is a valid range
   if (selection.rangeCount === 0) {
@@ -26,10 +28,12 @@ function handleSelectionChange() {
   }
 
   const range = selection.getRangeAt(0);
-  const parentBubble =
-    range.startContainer.parentElement?.closest(".chat-bubble");
+  const parentBubble = range.startContainer.parentElement?.closest(
+    "[data-message-author-role]"
+  );
 
   if (!parentBubble) {
+    console.log("Could not find parentBubble of the selection text");
     removeIcon();
     return;
   }
