@@ -13,10 +13,10 @@ export function scrollToAndHighlight(selector: string, snippet?: string) {
   style.textContent = `
     @keyframes smoothBlink {
       0%, 100% { background-color: inherit; }
-      50% { background-color: #d1d5db; } /* Tailwind gray-300 */
+      50% { background-color: #d1d5db; }
     }
     .blink-bg {
-      animation: smoothBlink 0.8s ease-in-out 3; /* 3 smooth blinks */
+      animation: smoothBlink 0.8s ease-in-out 3;
     }
   `;
   document.head.appendChild(style);

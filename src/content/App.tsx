@@ -373,7 +373,6 @@ function App() {
 
       {/* Custom Scrollbar Styles */}
       <style>{`
-        /* SCROLLBAR CUSTOMIZATION */
         .custom-scrollbar {
           scrollbar-width: thin;
           scrollbar-color: #9ca3af #f9fafb;
@@ -398,7 +397,6 @@ function App() {
           background-color: #6b7280;
         }
 
-        /* Dark mode scrollbar */
         .dark .custom-scrollbar {
           scrollbar-color: #4b5563 #1f2937;
         }
