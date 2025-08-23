@@ -8,24 +8,48 @@ let iconContainer: HTMLDivElement | null = null;
 let root: Root | null = null;
 
 export function initSelectionListener() {
-  document.addEventListener("selectionchange", handleSelectionChange);
+  // Listen for mouseup instead of selectionchange
+  document.addEventListener("mouseup", handleMouseUp);
+  
+  // Also listen for keyup to handle keyboard selections (Shift+Arrow keys, etc.)
+  document.addEventListener("keyup", handleKeyUp);
+  
+  // Hide icon when user clicks elsewhere
+  document.addEventListener("mousedown", removeIcon);
 }
 
-function handleSelectionChange() {
-  console.log("The selectionListener was fired");
+function handleMouseUp(event: MouseEvent) {
+  // Small delay to let the selection settle
+  setTimeout(() => {
+    checkAndShowIcon();
+  }, 50);
+}
+
+function handleKeyUp(event: KeyboardEvent) {
+  // Only process if it might be a selection key
+  if (event.shiftKey || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+    setTimeout(() => {
+      checkAndShowIcon();
+    }, 50);
+  }
+}
+
+function checkAndShowIcon() {
+  console.log("Checking for selection...");
+  
   const selection = window.getSelection();
   if (!selection || selection.toString().trim() === "") {
     removeIcon();
     return;
   }
 
-  console.log("Selection : ", selection.toString());
-
   // Ensure there is a valid range
   if (selection.rangeCount === 0) {
     removeIcon();
     return;
   }
+
+  console.log("Valid selection found: ", selection.toString());
 
   const range = selection.getRangeAt(0);
   const parentBubble = range.startContainer.parentElement?.closest(
@@ -45,103 +69,69 @@ function handleSelectionChange() {
     return;
   }
 
-  // Get viewport dimensions for boundary checking
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
-  
   // Icon dimensions and spacing
   const iconWidth = 32;
   const iconHeight = 32;
-  const minGap = 4; // Minimal gap from selection
-  const safeGap = 12; // Preferred gap from selection
+  const gap = 8; // Gap from selection
   
-  // Get the selection's visual bounds more precisely
-  const selectionTop = rect.top + window.scrollY;
-  const selectionBottom = rect.bottom + window.scrollY;
-  const selectionLeft = rect.left + window.scrollX;
-  const selectionRight = rect.right + window.scrollX;
+  // Get selection bounds in viewport coordinates
+  const selectionTop = rect.top;
+  const selectionBottom = rect.bottom;
+  const selectionLeft = rect.left;
+  const selectionRight = rect.right;
   
-  // Calculate available space in all directions
-  const spaceRight = viewportWidth + window.scrollX - selectionRight;
-  const spaceLeft = selectionLeft - window.scrollX;
-  const spaceBelow = viewportHeight + window.scrollY - selectionBottom;
-  const spaceAbove = selectionTop - window.scrollY;
+  // Convert to document coordinates for absolute positioning
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+  
+  // Calculate available space in viewport
+  const spaceRight = window.innerWidth - selectionRight;
+  const spaceLeft = selectionLeft;
+  const spaceBelow = window.innerHeight - selectionBottom;
+  const spaceAbove = selectionTop;
   
   let top: number;
   let left: number;
   
-  // Strategy 1: Try to place to the right of selection (most common)
-  if (spaceRight >= iconWidth + safeGap) {
-    left = selectionRight + safeGap;
-    // Vertically align with top of selection, but ensure it stays in viewport
-    top = Math.max(
-      window.scrollY + 10, // Minimum distance from top
-      Math.min(
-        selectionTop, // Align with selection start
-        window.scrollY + viewportHeight - iconHeight - 10 // Maximum distance from bottom
-      )
-    );
+  // Strategy 1: Place to the right of selection (preferred)
+  if (spaceRight >= iconWidth + gap) {
+    left = selectionRight + scrollLeft + gap;
+    top = selectionTop + scrollTop;
   }
-  // Strategy 2: Try to place to the left of selection
-  else if (spaceLeft >= iconWidth + safeGap) {
-    left = selectionLeft - iconWidth - safeGap;
-    top = Math.max(
-      window.scrollY + 10,
-      Math.min(
-        selectionTop,
-        window.scrollY + viewportHeight - iconHeight - 10
-      )
-    );
+  // Strategy 2: Place to the left of selection
+  else if (spaceLeft >= iconWidth + gap) {
+    left = selectionLeft + scrollLeft - iconWidth - gap;
+    top = selectionTop + scrollTop;
   }
-  // Strategy 3: Try to place below selection
-  else if (spaceBelow >= iconHeight + safeGap) {
-    top = selectionBottom + safeGap;
-    // Horizontally align but keep within viewport
-    left = Math.max(
-      window.scrollX + 10,
-      Math.min(
-        selectionRight - iconWidth + 10, // Slight offset from right edge
-        window.scrollX + viewportWidth - iconWidth - 10
-      )
-    );
+  // Strategy 3: Place below selection
+  else if (spaceBelow >= iconHeight + gap) {
+    top = selectionBottom + scrollTop + gap;
+    left = selectionRight + scrollLeft - iconWidth; // Align with right edge of selection
   }
-  // Strategy 4: Try to place above selection
-  else if (spaceAbove >= iconHeight + safeGap) {
-    top = selectionTop - iconHeight - safeGap;
-    left = Math.max(
-      window.scrollX + 10,
-      Math.min(
-        selectionRight - iconWidth + 10,
-        window.scrollX + viewportWidth - iconWidth - 10
-      )
-    );
+  // Strategy 4: Place above selection
+  else if (spaceAbove >= iconHeight + gap) {
+    top = selectionTop + scrollTop - iconHeight - gap;
+    left = selectionRight + scrollLeft - iconWidth; // Align with right edge of selection
   }
-  // Strategy 5: Emergency positioning - use minimal gaps and force into viewport
+  // Strategy 5: Force positioning (emergency)
   else {
-    // Find the side with most space and use minimal gap
-    if (spaceRight >= spaceLeft && spaceRight >= minGap + iconWidth) {
-      left = selectionRight + minGap;
-    } else if (spaceLeft >= minGap + iconWidth) {
-      left = selectionLeft - iconWidth - minGap;
-    } else {
-      // Force horizontal position with minimum viewport margin
-      left = Math.max(10, Math.min(selectionLeft, window.scrollX + viewportWidth - iconWidth - 10));
-    }
-    
-    // Vertical positioning with emergency fallback
-    if (spaceBelow >= spaceAbove && spaceBelow >= minGap + iconHeight) {
-      top = selectionBottom + minGap;
-    } else if (spaceAbove >= minGap + iconHeight) {
-      top = selectionTop - iconHeight - minGap;
-    } else {
-      // Force vertical position with minimum viewport margin
-      top = Math.max(window.scrollY + 10, Math.min(selectionTop, window.scrollY + viewportHeight - iconHeight - 10));
-    }
+    // Default to right side of selection with minimal spacing
+    left = selectionRight + scrollLeft + 4;
+    top = selectionTop + scrollTop;
   }
   
-  // Final safety bounds - ensure icon never goes outside viewport
-  left = Math.max(window.scrollX + 5, Math.min(left, window.scrollX + viewportWidth - iconWidth - 5));
-  top = Math.max(window.scrollY + 5, Math.min(top, window.scrollY + viewportHeight - iconHeight - 5));
+  // Ensure icon stays within document bounds
+  const maxLeft = window.innerWidth + scrollLeft - iconWidth - 10;
+  const maxTop = window.innerHeight + scrollTop - iconHeight - 10;
+  const minLeft = scrollLeft + 10;
+  const minTop = scrollTop + 10;
+  
+  left = Math.max(minLeft, Math.min(left, maxLeft));
+  top = Math.max(minTop, Math.min(top, maxTop));
+
+  console.log(`Positioning icon at: left=${left}, top=${top}`);
+  console.log(`Selection bounds: top=${rect.top}, left=${rect.left}, bottom=${rect.bottom}, right=${rect.right}`);
+  console.log(`Scroll: scrollTop=${scrollTop}, scrollLeft=${scrollLeft}`);
 
   renderIcon(top, left, selection.toString(), parentBubble);
 }
@@ -154,10 +144,14 @@ function renderIcon(
 ) {
   if (!iconContainer) {
     iconContainer = document.createElement("div");
-    // Add some base styles to ensure proper positioning
+    // Ensure container doesn't interfere with positioning
     iconContainer.style.position = 'absolute';
+    iconContainer.style.top = '0';
+    iconContainer.style.left = '0';
     iconContainer.style.zIndex = '10000';
-    iconContainer.style.pointerEvents = 'none'; // Allow clicking through container
+    iconContainer.style.pointerEvents = 'none';
+    iconContainer.style.width = '100%';
+    iconContainer.style.height = '100%';
     document.body.appendChild(iconContainer);
     root = createRoot(iconContainer);
   }
