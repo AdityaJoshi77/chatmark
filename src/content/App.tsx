@@ -160,13 +160,6 @@ function App() {
           title="Open ChatMark"
         >
           <MdBookmark size={18} />
-          {/* {bookmarks.length > 0 && (
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-gray-600 dark:bg-gray-100 rounded-full flex items-center justify-center">
-              <span className="text-xs text-white dark:text-gray-800 font-medium">
-                {bookmarks.length}
-              </span>
-            </div>
-          )} */}
         </button>
       )}
 
@@ -244,7 +237,7 @@ function App() {
                     }
                     className="px-2 py-1 text-xs rounded border border-gray-200 dark:border-gray-600
                              bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300
-                             focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600"
+                             focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 cursor-pointer"
                   >
                     <option value="all">All</option>
                     <option value="user">User</option>
