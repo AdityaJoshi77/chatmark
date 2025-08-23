@@ -4,7 +4,6 @@ import {
   MdDeleteForever,
   MdSearch,
   MdSort,
-  MdFilterList,
   MdBookmark,
   MdClose,
 } from "react-icons/md";
@@ -35,48 +34,54 @@ function App() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const panelRef = useRef<HTMLDivElement>(null);
 
+  // setup openPanelFn once
   useEffect(() => {
     openPanelFn = (newSnippet?: string, bubble?: HTMLElement) => {
-      console.log("Parent Bubble Fetched : ", bubble);
       setSnippet(newSnippet || "");
       setAnchor(bubble || null);
       setIsPanelOpen(true);
       setShowBookMarkForm(true);
     };
+  }, []);
 
-    // get the current chat's Id from the url:
+  // detect chatId from url
+  useEffect(() => {
     const pathname = window.location.href;
-    const chatId = pathname.split("/c/")[1].toString();
-    setChatId(chatId);
+    const id = pathname.split("/c/")[1] || "";
+    setChatId(id);
+  }, []);
 
+  // load bookmarks whenever chatId changes
+  useEffect(() => {
+    if (!chatId) return;
     const loadBookmarks = async () => {
       const stored = await getBookmarks(chatId);
       setBookmarks(stored);
     };
     loadBookmarks();
+  }, [chatId]);
 
-    // Push content when panel opens
+  // push content when panel opens
+  useEffect(() => {
     const mainContent = document.querySelector(
       "main, .main, #root > div, body > div"
     );
     if (mainContent) {
-      if (isPanelOpen) {
-        (mainContent as HTMLElement).style.marginRight = "320px";
-        (mainContent as HTMLElement).style.transition =
-          "margin-right 0.3s ease-out";
-      } else {
-        (mainContent as HTMLElement).style.marginRight = "0";
-      }
+      (mainContent as HTMLElement).style.transition =
+        "margin-right 0.3s ease-out";
+      (mainContent as HTMLElement).style.marginRight = isPanelOpen
+        ? "320px"
+        : "0";
     }
 
     return () => {
-      // Cleanup on unmount
       if (mainContent) {
         (mainContent as HTMLElement).style.marginRight = "0";
       }
     };
   }, [isPanelOpen]);
 
+  // close panel on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -84,12 +89,10 @@ function App() {
         panelRef.current &&
         !panelRef.current.contains(event.target as Node)
       ) {
-        // Close panel
         setIsPanelOpen(false);
         setShowBookMarkForm(false);
         setSnippet("");
         setTitle("");
-        // Floating button will automatically appear because !isPanelOpen
       }
     };
 
@@ -97,7 +100,6 @@ function App() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isPanelOpen]);
 
-  // Cancel bookmarking or close the panel
   const handleCancel = () => {
     setIsPanelOpen(false);
     setSnippet("");
@@ -105,7 +107,6 @@ function App() {
     setSearchQuery("");
   };
 
-  // Save new bookmark
   const handleSave = async () => {
     if (!title.trim()) return;
 
@@ -132,7 +133,6 @@ function App() {
     await saveBookmarks(chatId, updated);
   };
 
-  // Bookmark click → scroll and highlight
   const handleBookmarkClick = async (bm: BookmarkData) => {
     try {
       scrollToAndHighlight(bm.anchor, bm.snippet);
@@ -142,7 +142,6 @@ function App() {
     }
   };
 
-  // Filter, search, and sort bookmarks
   const filteredBookmarks = bookmarks
     .filter((b) => roleFilter === "all" || b.role === roleFilter)
     .filter((b) =>
@@ -155,7 +154,6 @@ function App() {
       sortLatest ? b.timestamp - a.timestamp : a.timestamp - b.timestamp
     );
 
-  // Format timestamp
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp);
     const now = new Date();
@@ -169,7 +167,6 @@ function App() {
 
   return (
     <div className="relative">
-      {/* Floating Bookmark Button - ChatGPT style */}
       {!isPanelOpen && (
         <button
           className="fixed top-32 right-4 flex items-center justify-center 
@@ -177,14 +174,13 @@ function App() {
                      w-10 h-10 rounded-full shadow-lg border border-gray-200 dark:border-gray-700
                      hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900  dark:hover:text-gray-100
                      transition-all duration-200 z-50"
-          onClick={() => setIsPanelOpen(!isPanelOpen)}
+          onClick={() => setIsPanelOpen(true)}
           title="Open ChatMark"
         >
           <MdBookmark size={18} />
         </button>
       )}
 
-      {/* Side Panel */}
       <div
         ref={panelRef}
         className={`fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-800 
@@ -193,7 +189,6 @@ function App() {
                    ${isPanelOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="p-4 h-full flex flex-col">
-          {/* Header*/}
           <div className="flex justify-between items-center pb-3 mb-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-2">
               <MdBookmark
@@ -217,7 +212,6 @@ function App() {
             </button>
           </div>
 
-          {/* Search and Filters*/}
           {!showBookMarkForm && (
             <>
               <div className="relative mb-3">
@@ -270,7 +264,6 @@ function App() {
             </>
           )}
 
-          {/* Add Bookmark Form - Minimal */}
           {showBookMarkForm && (
             <div className="border border-gray-200 dark:border-gray-600 rounded p-3 mb-4 bg-gray-50 dark:bg-gray-700">
               <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-300">
@@ -319,7 +312,6 @@ function App() {
             </div>
           )}
 
-          {/* Bookmarks List */}
           {!showBookMarkForm && (
             <div className="flex-1 overflow-hidden">
               {filteredBookmarks.length === 0 ? (
@@ -385,73 +377,38 @@ function App() {
         </div>
       </div>
 
-      {/* Custom Scrollbar Styles */}
       <style>{`
         .custom-scrollbar {
           scrollbar-width: thin;
           scrollbar-color: #9ca3af #f9fafb;
         }
-
         .custom-scrollbar::-webkit-scrollbar {
           width: 8px;
         }
-
         .custom-scrollbar::-webkit-scrollbar-track {
           background: #f9fafb;
           border-radius: 10px;
         }
-
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background-color: #9ca3af;
           border-radius: 10px;
           border: 2px solid #f9fafb;
         }
-
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background-color: #6b7280;
         }
-
         .dark .custom-scrollbar {
           scrollbar-color: #4b5563 #1f2937;
         }
-
         .dark .custom-scrollbar::-webkit-scrollbar-track {
           background: #1f2937;
         }
-
         .dark .custom-scrollbar::-webkit-scrollbar-thumb {
           background-color: #4b5563;
           border: 2px solid #1f2937;
         }
-
         .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background-color: #6b7280;
-        }
-
-        .scrollbar-hover::-webkit-scrollbar {
-          width: 0px;
-          transition: width 0.3s ease-in-out;
-        }
-
-        .scrollbar-hover:hover::-webkit-scrollbar {
-          width: 8px;
-        }
-
-        .scrollbar-hover::-webkit-scrollbar-track {
-          background: #f9fafb;
-        }
-
-        .scrollbar-hover::-webkit-scrollbar-thumb {
-          background-color: #9ca3af;
-          border-radius: 10px;
-        }
-
-        .dark .scrollbar-hover::-webkit-scrollbar-track {
-          background: #1f2937;
-        }
-
-        .dark .scrollbar-hover::-webkit-scrollbar-thumb {
-          background-color: #4b5563;
         }
         .line-clamp-2 {
           display: -webkit-box;
@@ -470,7 +427,6 @@ function App() {
   );
 }
 
-// helper: convert bubble element to a reliable CSS selector
 function bubbleToSelector(el: Element | null): string {
   if (!el) return "";
   const id = el.getAttribute("data-message-id");
