@@ -14,8 +14,17 @@ export function initSelectionListener() {
   // Also listen for keyup to handle keyboard selections (Shift+Arrow keys, etc.)
   document.addEventListener("keyup", handleKeyUp);
   
-  // Hide icon when user clicks elsewhere
-  document.addEventListener("mousedown", removeIcon);
+  // Hide icon when user clicks elsewhere (but not on the icon itself)
+  document.addEventListener("mousedown", handleMouseDown);
+}
+
+function handleMouseDown(event: MouseEvent) {
+  // Don't remove icon if clicking on the icon itself
+  const target = event.target as HTMLElement;
+  if (target.closest('.bookmark-icon-btn')) {
+    return; // Let the icon handle its own click
+  }
+  removeIcon();
 }
 
 function handleMouseUp(event: MouseEvent) {
@@ -144,12 +153,12 @@ function renderIcon(
 ) {
   if (!iconContainer) {
     iconContainer = document.createElement("div");
-    // Ensure container doesn't interfere with positioning
+    // Ensure container doesn't interfere with positioning but allows clicks
     iconContainer.style.position = 'absolute';
     iconContainer.style.top = '0';
     iconContainer.style.left = '0';
     iconContainer.style.zIndex = '10000';
-    iconContainer.style.pointerEvents = 'none';
+    iconContainer.style.pointerEvents = 'auto'; // Changed from 'none' to 'auto'
     iconContainer.style.width = '100%';
     iconContainer.style.height = '100%';
     document.body.appendChild(iconContainer);
@@ -161,7 +170,9 @@ function renderIcon(
       <BookmarkIcon
         top={top}
         left={left}
-        onClick={() => {
+        onClick={(e) => {
+          console.log("BookmarkIcon clicked!"); // Debug log
+          e.stopPropagation(); // Prevent event bubbling
           openPanelWithSnippet(snippet, bubble);
           removeIcon();
         }}

@@ -4,7 +4,7 @@ import { MdBookmarkAdd } from "react-icons/md";
 interface BookmarkIconProps {
   top: number;
   left: number;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
 }
 
 const BookmarkIcon: React.FC<BookmarkIconProps> = ({ top, left, onClick }) => {
