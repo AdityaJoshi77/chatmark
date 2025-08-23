@@ -178,7 +178,7 @@ function App() {
                    ${isPanelOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="p-4 h-full flex flex-col">
-          {/* Header - Minimal */}
+          {/* Header*/}
           <div className="flex justify-between items-center pb-3 mb-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-2">
               <MdBookmark
@@ -194,7 +194,7 @@ function App() {
             </div>
             <button
               onClick={handleCancel}
-              className="p-1  text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-gray-200 
+              className="p-1 text-black dark:text-gray-300
                          hover:bg-gray-100 dark:hover:bg-gray-700 rounded 
                          transition-colors duration-200"
             >
