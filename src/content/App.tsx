@@ -19,13 +19,12 @@ function App() {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [showBookMarkForm, setShowBookMarkForm] = useState<boolean>(false);
   const [sortLatest, setSortLatest] = useState<boolean>(true);
-  const [roleFilter, setRoleFilter] = useState<"all" | "user" | "assistant">(
-    "all"
-  );
+  const [roleFilter, setRoleFilter] = useState<"all" | "user" | "assistant">("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     openPanelFn = (newSnippet?: string, bubble?: HTMLElement) => {
-      console.log('Parent Bubble Fetched : ', bubble);
+      console.log("Parent Bubble Fetched : ", bubble);
       setSnippet(newSnippet || "");
       setAnchor(bubble || null);
       setIsPanelOpen(true);
@@ -44,6 +43,7 @@ function App() {
     setIsPanelOpen(false);
     setSnippet("");
     setShowBookMarkForm(false);
+    setSearchQuery(""); // clear search when closing
   };
 
   // Save new bookmark
@@ -53,7 +53,7 @@ function App() {
     const newBookmark: BookmarkData = {
       id: Date.now().toString(),
       title,
-      snippet, // from selection
+      snippet,
       role: anchor?.dataset.messageAuthorRole!,
       timestamp: Date.now(),
       anchor: bubbleToSelector(anchor),
@@ -66,6 +66,7 @@ function App() {
     setTitle("");
     setSnippet("");
     setAnchor(null);
+    setShowBookMarkForm(false);
     setIsPanelOpen(false);
 
     await saveBookmarks(updated);
@@ -81,15 +82,21 @@ function App() {
     }
   };
 
-  // Filter and sort bookmarks
+  // Filter, search, and sort bookmarks
   const filteredBookmarks = bookmarks
     .filter((b) => roleFilter === "all" || b.role === roleFilter)
+    .filter((b) =>
+      [b.title, b.snippet]
+        .join(" ")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+    )
     .sort((a, b) =>
       sortLatest ? b.timestamp - a.timestamp : a.timestamp - b.timestamp
     );
 
   return (
-    <div className="bg-gray-700">
+    <div className="dark:bg-gray-900">
       {/* Floating Bookmark Button */}
       {!isPanelOpen && (
         <button
@@ -109,10 +116,10 @@ function App() {
         <div className="p-4 h-full flex flex-col">
           {/* Header */}
           <div className="flex justify-between items-center border-b border-slate-300 dark:border-gray-500 pb-2 mb-4">
-            <h2 className="text-lg font-bold dark:text-gray-200">Bookmarks</h2>
+            <h2 className="text-lg font-bold text-gray-700 dark:text-gray-200">Bookmarks</h2>
             <button
               onClick={handleCancel}
-              className="text-gray-900 dark:bg-gray-400 px-2 py-1 rounded-md hover:dark:bg-gray-300 text-xs font-semibold cursor-pointer"
+              className="text-white hover:text-gray-900 dark:bg-gray-400 px-2 py-1 rounded-md hover:dark:bg-gray-300 text-xs font-semibold cursor-pointer"
             >
               ✕
             </button>
@@ -123,12 +130,14 @@ function App() {
             <>
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search bookmarks..."
-                className="border rounded px-3 py-2 mb-2 w-full dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-300"
+                className="border rounded px-3 py-2 mb-2 w-full text-gray-800 dark:text-black placeholder:text-gray-700 dark:placeholder:text-gray-700"
               />
 
               {/* Render sort/filter buttons only if there are bookmarks */}
-              {bookmarks.length >= 0 && (
+              {bookmarks.length > 0 && (
                 <div className="flex space-x-2 mb-4">
                   <button
                     onClick={() => setSortLatest(!sortLatest)}
@@ -158,7 +167,7 @@ function App() {
           {/* Add Bookmark Form */}
           {showBookMarkForm && (
             <div className="flex-grow p-3 border border-dashed border-gray-400 rounded-md bg-gray-50 dark:bg-gray-700 mb-4">
-              <label className="block text-sm font-semibold mb-1 dark:text-gray-200">
+              <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-200">
                 Title
               </label>
               <input
@@ -168,7 +177,7 @@ function App() {
                 className="border rounded px-2 py-1 w-full mb-2 text-sm dark:text-black placeholder:dark:text-gray-700"
                 placeholder="Enter bookmark title"
               />
-              <p className="text-xs text-gray-500 truncate">{snippet}</p>
+              <p className="text-xs text-gray-800 dark:text-gray-200">{snippet}</p>
               <div className="flex justify-end space-x-2 mt-2">
                 <button
                   onClick={handleCancel}
@@ -191,21 +200,29 @@ function App() {
             <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar">
               {filteredBookmarks.length === 0 && (
                 <p className="text-sm text-gray-500 dark:text-gray-300">
-                  No bookmarks yet
+                  No bookmarks found
                 </p>
               )}
               {filteredBookmarks.map((bm) => (
                 <div
                   key={bm.id}
-                  className="p-2 border border-gray-300 dark:border-gray-500 rounded dark:text-gray-200 flex justify-between items-start cursor-pointer"
+                  className="p-2 
+               bg-gray-100 hover:bg-gray-200    /* ✅ Light mode */
+               dark:bg-gray-700 dark:hover:bg-gray-600  /* ✅ Dark mode */
+               border border-gray-300 dark:border-gray-500 
+               rounded 
+               text-gray-900 dark:text-gray-200 
+               flex justify-between items-start 
+               cursor-pointer transition-colors duration-200"
                   onClick={() => handleBookmarkClick(bm)}
                 >
-                  <div>
-                    <p className="font-semibold">{bm.title}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-300 truncate">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold truncate">{bm.title}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 truncate max-w-[90%]">
                       {bm.snippet}
                     </p>
                   </div>
+
                   <button
                     onClick={async (e) => {
                       e.stopPropagation();
@@ -213,7 +230,7 @@ function App() {
                       setBookmarks(updated);
                       await saveBookmarks(updated);
                     }}
-                    className="text-red-500 text-xs hover:text-red-400 ml-2"
+                    className="text-red-500 hover:text-red-400 ml-2 flex-shrink-0"
                     title="Delete bookmark"
                   >
                     <MdDeleteForever size={20} />

@@ -44,15 +44,6 @@ export function scrollToAndHighlight(selector: string, snippet?: string) {
         break;
       }
     }
-
-    // if (found) {
-    //   setTimeout(() => {
-    //     const mark = bubble.querySelector("mark");
-    //     if (mark) {
-    //       mark.replaceWith(document.createTextNode(mark.textContent || ""));
-    //     }
-    //   }, 2000);
-    // }
   }
 
   // ✅ remove border highlight after ~4s, once blink finishes
