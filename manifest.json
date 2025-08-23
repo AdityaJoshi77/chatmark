@@ -4,15 +4,15 @@
   "version": "1.0.0",
   "description": "Bookmark messages in chat apps easily.",
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/icons16.png",
+    "48": "icons/icons48.png",
+    "128": "icons/icons128.png"
   },
   "action": {
     "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+      "16": "icons/icons16.png",
+      "48": "icons/icons48.png",
+      "128": "icons/icons128.png"
     }
   },
   "background": {

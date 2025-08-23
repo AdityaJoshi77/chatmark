@@ -43,7 +43,7 @@ function App() {
       setShowBookMarkForm(true);
     };
 
-    // get the current chat's Id from the url: 
+    // get the current chat's Id from the url:
     const pathname = window.location.href;
     const chatId = pathname.split("/c/")[1].toString();
     setChatId(chatId);
@@ -154,19 +154,19 @@ function App() {
           className="fixed top-32 right-4 flex items-center justify-center 
                      bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300
                      w-10 h-10 rounded-full shadow-lg border border-gray-200 dark:border-gray-700
-                     hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-100
+                     hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900  dark:hover:text-gray-100
                      transition-all duration-200 z-50"
           onClick={() => setIsPanelOpen(!isPanelOpen)}
           title="Open ChatMark"
         >
           <MdBookmark size={18} />
-          {bookmarks.length > 0 && (
+          {/* {bookmarks.length > 0 && (
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-gray-600 dark:bg-gray-100 rounded-full flex items-center justify-center">
               <span className="text-xs text-white dark:text-gray-800 font-medium">
                 {bookmarks.length}
               </span>
             </div>
-          )}
+          )} */}
         </button>
       )}
 
@@ -297,7 +297,6 @@ function App() {
                            hover:bg-gray-100 dark:hover:bg-gray-300 rounded
                            disabled:opacity-50 disabled:cursor-not-allowed
                            transition-colors duration-200"
-                  
                 >
                   Save
                 </button>
