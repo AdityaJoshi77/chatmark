@@ -5,47 +5,29 @@ export function scrollToAndHighlight(selector: string, snippet?: string) {
   console.log("Firing scrollToAndHighlight.....");
   bubble.scrollIntoView({ behavior: "smooth", block: "center" });
 
-  // 👉 target the first child instead of the bubble itself
-  const target = bubble.firstElementChild as HTMLElement | null;
-  if (!target) return;
+  // ✅ add border highlight immediately
+  bubble.style.outline = "2px solid yellow";
 
-  // ✅ inject blinking animation dynamically
+  // ✅ create smooth blink animation for background
   const style = document.createElement("style");
   style.textContent = `
     @keyframes smoothBlink {
-      0%, 100% {
-        background-color: inherit;
-        outline-color: inherit;
-      }
-      50% {
-        background-color: #d1d5db; /* gray-300 */
-        outline-color: white;
-      }
+      0%, 100% { background-color: inherit; }
+      50% { background-color: #d1d5db; } /* Tailwind gray-300 */
     }
-    .blink-highlight {
-      outline: 3px solid inherit;
-      outline-offset: 3px;
-      animation: smoothBlink 1s ease-in-out 3; /* 3 blinks */
+    .blink-bg {
+      animation: smoothBlink 0.8s ease-in-out 3; /* 3 smooth blinks */
     }
   `;
   document.head.appendChild(style);
 
-  target.classList.add("blink-highlight");
-
-  // remove styles after animation ends
-  target.addEventListener(
-    "animationend",
-    () => {
-      target.classList.remove("blink-highlight");
-      target.style.outline = "";
-      style.remove(); // cleanup the injected <style>
-    },
-    { once: true }
-  );
+  // apply blink class
+  bubble.classList.add("blink-bg");
 
   if (snippet) {
     const range = document.createRange();
-    const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT);
+    const walker = document.createTreeWalker(bubble, NodeFilter.SHOW_TEXT);
+    let found = false;
 
     while (walker.nextNode()) {
       const node = walker.currentNode as Text;
@@ -55,10 +37,28 @@ export function scrollToAndHighlight(selector: string, snippet?: string) {
         range.setEnd(node, idx + snippet.length);
 
         const mark = document.createElement("mark");
-        mark.style.backgroundColor = "yellow";
+        mark.style.backgroundColor = "yellow"; // ✅ snippet highlighted in yellow
         range.surroundContents(mark);
+
+        found = true;
         break;
       }
     }
+
+    // if (found) {
+    //   setTimeout(() => {
+    //     const mark = bubble.querySelector("mark");
+    //     if (mark) {
+    //       mark.replaceWith(document.createTextNode(mark.textContent || ""));
+    //     }
+    //   }, 2000);
+    // }
   }
+
+  // ✅ remove border highlight after ~4s, once blink finishes
+  setTimeout(() => {
+    bubble.style.outline = "";
+    bubble.classList.remove("blink-bg");
+    style.remove();
+  }, 4000); // matches 3 blinks at 0.8s each
 }
