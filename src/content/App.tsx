@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   MdBookmarkAdd,
   MdDeleteForever,
@@ -33,6 +33,7 @@ function App() {
     "all"
   );
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     openPanelFn = (newSnippet?: string, bubble?: HTMLElement) => {
@@ -76,6 +77,26 @@ function App() {
     };
   }, [isPanelOpen]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isPanelOpen &&
+        panelRef.current &&
+        !panelRef.current.contains(event.target as Node)
+      ) {
+        // Close panel
+        setIsPanelOpen(false);
+        setShowBookMarkForm(false);
+        setSnippet("");
+        setTitle("");
+        // Floating button will automatically appear because !isPanelOpen
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isPanelOpen]);
+
   // Cancel bookmarking or close the panel
   const handleCancel = () => {
     setIsPanelOpen(false);
@@ -108,7 +129,7 @@ function App() {
     setShowBookMarkForm(false);
     setIsPanelOpen(false);
 
-    await saveBookmarks(updated);
+    await saveBookmarks(chatId, updated);
   };
 
   // Bookmark click → scroll and highlight
@@ -165,6 +186,7 @@ function App() {
 
       {/* Side Panel */}
       <div
+        ref={panelRef}
         className={`fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-800 
                    border-l border-gray-200 dark:border-gray-700
                    transform transition-transform duration-300 ease-out z-40
@@ -331,7 +353,7 @@ function App() {
                               (b) => b.id !== bm.id
                             );
                             setBookmarks(updated);
-                            await saveBookmarks(updated);
+                            await saveBookmarks(chatId, updated);
                           }}
                           className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-600
                                    hover:bg-gray-100 dark:hover:bg-gray-700 rounded
