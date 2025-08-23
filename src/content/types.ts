@@ -7,5 +7,6 @@ export interface BookmarkData {
   timestamp: number;
   anchor: string; // bubble ID
   selectionText: string; // full selection
+  chatId: string;
   url?:string
 }

@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
-import { MdBookmarkAdd, MdDeleteForever } from "react-icons/md";
+import {
+  MdBookmarkAdd,
+  MdDeleteForever,
+  MdSearch,
+  MdSort,
+  MdFilterList,
+  MdBookmark,
+  MdClose,
+} from "react-icons/md";
+
 import { dummyBookmarks } from "../dummyData";
 import type { BookmarkData } from "./types";
 import { getBookmarks, saveBookmarks } from "./storage";
@@ -14,12 +23,15 @@ export function openPanelWithSnippet(snippet?: string, bubble?: HTMLElement) {
 function App() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [bookmarks, setBookmarks] = useState<BookmarkData[]>(dummyBookmarks);
+  const [chatId, setChatId] = useState<string>("");
   const [title, setTitle] = useState("");
   const [snippet, setSnippet] = useState("");
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [showBookMarkForm, setShowBookMarkForm] = useState<boolean>(false);
   const [sortLatest, setSortLatest] = useState<boolean>(true);
-  const [roleFilter, setRoleFilter] = useState<"all" | "user" | "assistant">("all");
+  const [roleFilter, setRoleFilter] = useState<"all" | "user" | "assistant">(
+    "all"
+  );
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
@@ -31,19 +43,45 @@ function App() {
       setShowBookMarkForm(true);
     };
 
+    // get the current chat's Id from the url: 
+    const pathname = window.location.href;
+    const chatId = pathname.split("/c/")[1].toString();
+    setChatId(chatId);
+
     const loadBookmarks = async () => {
-      const stored = await getBookmarks();
+      const stored = await getBookmarks(chatId);
       setBookmarks(stored);
     };
     loadBookmarks();
-  }, []);
+
+    // Push content when panel opens
+    const mainContent = document.querySelector(
+      "main, .main, #root > div, body > div"
+    );
+    if (mainContent) {
+      if (isPanelOpen) {
+        (mainContent as HTMLElement).style.marginRight = "320px";
+        (mainContent as HTMLElement).style.transition =
+          "margin-right 0.3s ease-out";
+      } else {
+        (mainContent as HTMLElement).style.marginRight = "0";
+      }
+    }
+
+    return () => {
+      // Cleanup on unmount
+      if (mainContent) {
+        (mainContent as HTMLElement).style.marginRight = "0";
+      }
+    };
+  }, [isPanelOpen]);
 
   // Cancel bookmarking or close the panel
   const handleCancel = () => {
     setIsPanelOpen(false);
     setSnippet("");
     setShowBookMarkForm(false);
-    setSearchQuery(""); // clear search when closing
+    setSearchQuery("");
   };
 
   // Save new bookmark
@@ -58,6 +96,7 @@ function App() {
       timestamp: Date.now(),
       anchor: bubbleToSelector(anchor),
       selectionText: snippet,
+      chatId,
       url: window.location.href,
     };
 
@@ -95,55 +134,105 @@ function App() {
       sortLatest ? b.timestamp - a.timestamp : a.timestamp - b.timestamp
     );
 
+  // Format timestamp
+  const formatTime = (timestamp: number) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+
+    if (diffInHours < 1) return "Just now";
+    if (diffInHours < 24) return `${Math.floor(diffInHours)}h ago`;
+    if (diffInHours < 48) return "Yesterday";
+    return date.toLocaleDateString();
+  };
+
   return (
-    <div className="dark:bg-gray-900">
-      {/* Floating Bookmark Button */}
+    <div className="relative">
+      {/* Floating Bookmark Button - ChatGPT style */}
       {!isPanelOpen && (
         <button
-          className="fixed top-40 right-6 flex items-center justify-center bg-gray-600 text-gray-100 w-10 h-10 rounded-full shadow-lg hover:bg-gray-500 transition cursor-pointer z-50"
+          className="fixed top-32 right-4 flex items-center justify-center 
+                     bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300
+                     w-10 h-10 rounded-full shadow-lg border border-gray-200 dark:border-gray-700
+                     hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-100
+                     transition-all duration-200 z-50"
           onClick={() => setIsPanelOpen(!isPanelOpen)}
           title="Open ChatMark"
         >
-          <MdBookmarkAdd size={20} />
+          <MdBookmark size={18} />
+          {bookmarks.length > 0 && (
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-gray-600 dark:bg-gray-100 rounded-full flex items-center justify-center">
+              <span className="text-xs text-white dark:text-gray-800 font-medium">
+                {bookmarks.length}
+              </span>
+            </div>
+          )}
         </button>
       )}
 
       {/* Side Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 dark:bg-gray-600 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-40
-          ${isPanelOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-800 
+                   border-l border-gray-200 dark:border-gray-700
+                   transform transition-transform duration-300 ease-out z-40
+                   ${isPanelOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="p-4 h-full flex flex-col">
-          {/* Header */}
-          <div className="flex justify-between items-center border-b border-slate-300 dark:border-gray-500 pb-2 mb-4">
-            <h2 className="text-lg font-bold text-gray-700 dark:text-gray-200">Bookmarks</h2>
+          {/* Header - Minimal */}
+          <div className="flex justify-between items-center pb-3 mb-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center space-x-2">
+              <MdBookmark
+                size={16}
+                className="text-gray-600 dark:text-gray-300"
+              />
+              <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                Bookmarks
+              </h2>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                ({bookmarks.length})
+              </span>
+            </div>
             <button
               onClick={handleCancel}
-              className="text-white hover:text-gray-900 dark:bg-gray-400 px-2 py-1 rounded-md hover:dark:bg-gray-300 text-xs font-semibold cursor-pointer"
+              className="p-1  text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-gray-200 
+                         hover:bg-gray-100 dark:hover:bg-gray-700 rounded 
+                         transition-colors duration-200"
             >
-              ✕
+              <MdClose size={16} />
             </button>
           </div>
 
-          {/* Search Box */}
+          {/* Search and Filters*/}
           {!showBookMarkForm && (
             <>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search bookmarks..."
-                className="border rounded px-3 py-2 mb-2 w-full text-gray-800 dark:text-black placeholder:text-gray-700 dark:placeholder:text-gray-700"
-              />
+              <div className="relative mb-3">
+                <MdSearch
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={14}
+                />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search..."
+                  className="w-full pl-7 pr-3 py-2 text-sm rounded border border-gray-200 dark:border-gray-600
+                           bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+                           placeholder-gray-400 dark:placeholder-gray-500
+                           focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-300
+                           transition-colors duration-200"
+                />
+              </div>
 
-              {/* Render sort/filter buttons only if there are bookmarks */}
               {bookmarks.length > 0 && (
                 <div className="flex space-x-2 mb-4">
                   <button
                     onClick={() => setSortLatest(!sortLatest)}
-                    className="flex-1 px-2 py-1 text-sm rounded bg-gray-300 hover:bg-gray-200 dark:bg-gray-500 dark:hover:bg-gray-400 cursor-pointer text-black"
+                    className="flex items-center space-x-1 px-2 py-1 text-xs rounded
+                             bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600
+                             text-gray-600 dark:text-gray-300 transition-colors duration-200"
                   >
-                    Sort: {sortLatest ? "Latest" : "Earliest"}
+                    <MdSort size={12} />
+                    <span>{sortLatest ? "Latest" : "Oldest"}</span>
                   </button>
 
                   <select
@@ -153,9 +242,11 @@ function App() {
                         e.target.value as "all" | "user" | "assistant"
                       )
                     }
-                    className="flex-1 px-2 py-1 text-sm rounded border dark:bg-gray-500 dark:text-white cursor-pointer"
+                    className="px-2 py-1 text-xs rounded border border-gray-200 dark:border-gray-600
+                             bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300
+                             focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600"
                   >
-                    <option value="all">All Roles</option>
+                    <option value="all">All</option>
                     <option value="user">User</option>
                     <option value="assistant">Assistant</option>
                   </select>
@@ -164,30 +255,49 @@ function App() {
             </>
           )}
 
-          {/* Add Bookmark Form */}
+          {/* Add Bookmark Form - Minimal */}
           {showBookMarkForm && (
-            <div className="flex-grow p-3 border border-dashed border-gray-400 rounded-md bg-gray-50 dark:bg-gray-700 mb-4">
-              <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-200">
+            <div className="border border-gray-200 dark:border-gray-600 rounded p-3 mb-4 bg-gray-50 dark:bg-gray-700">
+              <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-300">
                 Title
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="border rounded px-2 py-1 w-full mb-2 text-sm dark:text-black placeholder:dark:text-gray-700"
-                placeholder="Enter bookmark title"
+                className="w-full px-3 py-2 text-sm rounded border border-gray-200 dark:border-gray-600
+                         bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+                         placeholder-gray-400 dark:placeholder-gray-500
+                         focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600
+                         transition-colors duration-200 mb-3"
+                placeholder="Enter title..."
+                autoFocus
               />
-              <p className="text-xs text-gray-800 dark:text-gray-200">{snippet}</p>
-              <div className="flex justify-end space-x-2 mt-2">
+
+              <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-2 mb-3">
+                <p className="text-xs text-gray-600 dark:text-gray-400 italic">
+                  "{snippet}"
+                </p>
+              </div>
+
+              <div className="flex justify-end space-x-2">
                 <button
                   onClick={handleCancel}
-                  className="px-3 py-1 text-sm rounded bg-gray-300 hover:bg-gray-200 dark:bg-gray-500 dark:hover:bg-gray-400 cursor-pointer"
+                  className="px-3 py-1 text-xs bg-gray-900 dark:bg-gray-600 text-white
+                           hover:bg-gray-800 dark:hover:bg-gray-500 rounded
+                           transition-colors duration-200"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-3 py-1 text-sm rounded bg-yellow-500 hover:bg-yellow-400 text-black font-semibold cursor-pointer"
+                  disabled={!title.trim()}
+                  className="px-3 py-1 text-xs text-gray-600 dark:text-black
+                            bg-gray-300 dark:bg-gray-500
+                           hover:bg-gray-100 dark:hover:bg-gray-300 rounded
+                           disabled:opacity-50 disabled:cursor-not-allowed
+                           transition-colors duration-200"
+                  
                 >
                   Save
                 </button>
@@ -197,50 +307,153 @@ function App() {
 
           {/* Bookmarks List */}
           {!showBookMarkForm && (
-            <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar">
-              {filteredBookmarks.length === 0 && (
-                <p className="text-sm text-gray-500 dark:text-gray-300">
-                  No bookmarks found
-                </p>
-              )}
-              {filteredBookmarks.map((bm) => (
-                <div
-                  key={bm.id}
-                  className="p-2 
-               bg-gray-100 hover:bg-gray-200    /* ✅ Light mode */
-               dark:bg-gray-700 dark:hover:bg-gray-600  /* ✅ Dark mode */
-               border border-gray-300 dark:border-gray-500 
-               rounded 
-               text-gray-900 dark:text-gray-200 
-               flex justify-between items-start 
-               cursor-pointer transition-colors duration-200"
-                  onClick={() => handleBookmarkClick(bm)}
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold truncate">{bm.title}</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-300 truncate max-w-[90%]">
-                      {bm.snippet}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      const updated = bookmarks.filter((b) => b.id !== bm.id);
-                      setBookmarks(updated);
-                      await saveBookmarks(updated);
-                    }}
-                    className="text-red-500 hover:text-red-400 ml-2 flex-shrink-0"
-                    title="Delete bookmark"
-                  >
-                    <MdDeleteForever size={20} />
-                  </button>
+            <div className="flex-1 overflow-hidden">
+              {filteredBookmarks.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-32 text-center">
+                  <MdBookmark
+                    size={24}
+                    className="text-gray-300 dark:text-gray-600 mb-2"
+                  />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {searchQuery ? "No matches" : "No bookmarks"}
+                  </p>
                 </div>
-              ))}
+              ) : (
+                <div className="space-y-2 h-full overflow-y-auto custom-scrollbar">
+                  {filteredBookmarks.map((bm) => (
+                    <div
+                      key={bm.id}
+                      className="group p-3 rounded border border-gray-200 dark:border-gray-700
+                               bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750
+                               cursor-pointer transition-colors duration-200"
+                      onClick={() => handleBookmarkClick(bm)}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate flex-1 mr-2">
+                          {bm.title}
+                        </h3>
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            const updated = bookmarks.filter(
+                              (b) => b.id !== bm.id
+                            );
+                            setBookmarks(updated);
+                            await saveBookmarks(updated);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-600
+                                   hover:bg-gray-100 dark:hover:bg-gray-700 rounded
+                                   transition-all duration-200"
+                          title="Delete"
+                        >
+                          <MdDeleteForever size={18} />
+                        </button>
+                      </div>
+
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
+                        {bm.snippet}
+                      </p>
+
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs px-2 py-0.5 rounded text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700">
+                          {bm.role}
+                        </span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">
+                          {formatTime(bm.timestamp)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
+
+      {/* Custom Scrollbar Styles */}
+      <style>{`
+        /* SCROLLBAR CUSTOMIZATION */
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: #9ca3af #f9fafb;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f9fafb;
+          border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #9ca3af;
+          border-radius: 10px;
+          border: 2px solid #f9fafb;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background-color: #6b7280;
+        }
+
+        /* Dark mode scrollbar */
+        .dark .custom-scrollbar {
+          scrollbar-color: #4b5563 #1f2937;
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-track {
+          background: #1f2937;
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #4b5563;
+          border: 2px solid #1f2937;
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background-color: #6b7280;
+        }
+
+        .scrollbar-hover::-webkit-scrollbar {
+          width: 0px;
+          transition: width 0.3s ease-in-out;
+        }
+
+        .scrollbar-hover:hover::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .scrollbar-hover::-webkit-scrollbar-track {
+          background: #f9fafb;
+        }
+
+        .scrollbar-hover::-webkit-scrollbar-thumb {
+          background-color: #9ca3af;
+          border-radius: 10px;
+        }
+
+        .dark .scrollbar-hover::-webkit-scrollbar-track {
+          background: #1f2937;
+        }
+
+        .dark .scrollbar-hover::-webkit-scrollbar-thumb {
+          background-color: #4b5563;
+        }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .dark .bg-gray-750 {
+          background-color: rgb(55, 65, 81);
+        }
+        .dark .hover\\:bg-gray-750:hover {
+          background-color: rgb(55, 65, 81);
+        }
+      `}</style>
     </div>
   );
 }

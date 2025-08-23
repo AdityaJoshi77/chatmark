@@ -27,7 +27,6 @@ export function scrollToAndHighlight(selector: string, snippet?: string) {
   if (snippet) {
     const range = document.createRange();
     const walker = document.createTreeWalker(bubble, NodeFilter.SHOW_TEXT);
-    let found = false;
 
     while (walker.nextNode()) {
       const node = walker.currentNode as Text;
@@ -39,8 +38,6 @@ export function scrollToAndHighlight(selector: string, snippet?: string) {
         const mark = document.createElement("mark");
         mark.style.backgroundColor = "yellow"; // ✅ snippet highlighted in yellow
         range.surroundContents(mark);
-
-        found = true;
         break;
       }
     }
