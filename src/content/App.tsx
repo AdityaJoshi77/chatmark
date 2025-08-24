@@ -8,11 +8,9 @@ import {
   MdClose,
 } from "react-icons/md";
 
-
 import type { BookmarkData } from "./types";
 import { getBookmarks, saveBookmarks } from "./storage";
 import { scrollToAndHighlight } from "./scrollAndHighlight";
-
 
 // Function called by the floating selection icon
 let openPanelFn: (snippet?: string, bubble?: HTMLElement) => void;
@@ -45,23 +43,16 @@ function App() {
     };
   }, []);
 
-  // detect chatId from url
-  useEffect(() => {
-    const pathname = window.location.href;
-    const id = pathname.split("/c/")[1] || "";
-    setChatId(id);
-  }, []);
-
   // periodic check for chatId
   useEffect(() => {
-    const interval = setInterval(() => {
+    const interval = setInterval( ()=> {
       const pathname = window.location.href;
-      const id = pathname.split("/c/")[1] || "";
+      const id = pathname.split('/c/')[1] || "";
       setChatId(id);
-    }, 2000);
+    }, 2000)
 
     return () => clearInterval(interval);
-  });
+  })
 
   // load bookmarks whenever chatId changes
   useEffect(() => {

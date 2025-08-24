@@ -21,6 +21,7 @@ if (!rootDiv) {
   mainChatContainer.appendChild(rootDiv);
 }
 
+
 // Render React UI
 createRoot(rootDiv).render(<App />);
 
