@@ -23,12 +23,16 @@ export async function saveBookmarks(chatId: string, bookmarks: BookmarkData[]): 
     const result = await chrome.storage.sync.get([STORAGE_KEY]);
     const allBookmarks: Record<string, BookmarkData[]> = result[STORAGE_KEY] || {};
 
-    allBookmarks[chatId] = bookmarks; // update only this chatId
+    // Always merge with existing for this chat
+    const existing = allBookmarks[chatId] || [];
+    allBookmarks[chatId] = bookmarks.length ? bookmarks : existing;
+
     await chrome.storage.sync.set({ [STORAGE_KEY]: allBookmarks });
   } catch (error) {
     console.error("Error saving bookmarks:", error);
   }
 }
+
 
 export async function getAllBookmarks(): Promise<Record<string, BookmarkData[]>> {
   try {
