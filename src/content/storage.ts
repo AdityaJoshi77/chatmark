@@ -1,11 +1,16 @@
-const STORAGE_KEY = "chatmark_bookmarks";
 import type { BookmarkData } from "./types";
+
+const STORAGE_KEY = "chatmark_bookmarks";
+
+/**
+ * Get bookmarks for a specific chat
+ */
 export async function getBookmarks(chatId: string): Promise<BookmarkData[]> {
   try {
-    const result = await chrome.storage.sync.get([STORAGE_KEY]);
-    const allBookmarks: Record<string, BookmarkData[]> = result[STORAGE_KEY] || {};
-    console.log('chatId received by Str : ', chatId);
-    console.log('Bookmarks of current chat : ', allBookmarks[chatId]);
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const allBookmarks: Record<string, BookmarkData[]> = stored ? JSON.parse(stored) : {};
+    console.log("chatId received by storage:", chatId);
+    console.log("Bookmarks of current chat:", allBookmarks[chatId]);
     return allBookmarks[chatId] || [];
   } catch (error) {
     console.error("Error fetching bookmarks:", error);
@@ -13,6 +18,9 @@ export async function getBookmarks(chatId: string): Promise<BookmarkData[]> {
   }
 }
 
+/**
+ * Save bookmarks for a specific chat
+ */
 export async function saveBookmarks(chatId: string, bookmarks: BookmarkData[]): Promise<void> {
   try {
     if (!Array.isArray(bookmarks)) {
@@ -20,33 +28,36 @@ export async function saveBookmarks(chatId: string, bookmarks: BookmarkData[]): 
       return;
     }
 
-    const result = await chrome.storage.sync.get([STORAGE_KEY]);
-    const allBookmarks: Record<string, BookmarkData[]> = result[STORAGE_KEY] || {};
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const allBookmarks: Record<string, BookmarkData[]> = stored ? JSON.parse(stored) : {};
 
-    // Always merge with existing for this chat
-    const existing = allBookmarks[chatId] || [];
-    allBookmarks[chatId] = bookmarks.length ? bookmarks : existing;
+    allBookmarks[chatId] = bookmarks.length ? bookmarks : allBookmarks[chatId] || [];
 
-    await chrome.storage.sync.set({ [STORAGE_KEY]: allBookmarks });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allBookmarks));
   } catch (error) {
     console.error("Error saving bookmarks:", error);
   }
 }
 
-
+/**
+ * Get all bookmarks across all chats
+ */
 export async function getAllBookmarks(): Promise<Record<string, BookmarkData[]>> {
   try {
-    const result = await chrome.storage.sync.get([STORAGE_KEY]);
-    return result[STORAGE_KEY] || {};
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
   } catch (error) {
     console.error("Error fetching all bookmarks:", error);
     return {};
   }
 }
 
+/**
+ * Clear all bookmarks
+ */
 export async function clearAllBookmarks(): Promise<void> {
   try {
-    await chrome.storage.sync.set({ [STORAGE_KEY]: {} });
+    localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
     console.error("Error clearing bookmarks:", error);
   }
