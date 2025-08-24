@@ -8,10 +8,11 @@ import {
   MdClose,
 } from "react-icons/md";
 
-import { dummyBookmarks } from "../dummyData";
+
 import type { BookmarkData } from "./types";
 import { getBookmarks, saveBookmarks } from "./storage";
 import { scrollToAndHighlight } from "./scrollAndHighlight";
+
 
 // Function called by the floating selection icon
 let openPanelFn: (snippet?: string, bubble?: HTMLElement) => void;
@@ -21,7 +22,7 @@ export function openPanelWithSnippet(snippet?: string, bubble?: HTMLElement) {
 
 function App() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [bookmarks, setBookmarks] = useState<BookmarkData[]>(dummyBookmarks);
+  const [bookmarks, setBookmarks] = useState<BookmarkData[]>([]);
   const [chatId, setChatId] = useState<string>("");
   const [title, setTitle] = useState("");
   const [snippet, setSnippet] = useState("");
@@ -50,6 +51,17 @@ function App() {
     const id = pathname.split("/c/")[1] || "";
     setChatId(id);
   }, []);
+
+  // periodic check for chatId
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const pathname = window.location.href;
+      const id = pathname.split("/c/")[1] || "";
+      setChatId(id);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  });
 
   // load bookmarks whenever chatId changes
   useEffect(() => {

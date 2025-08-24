@@ -4,7 +4,8 @@ export async function getBookmarks(chatId: string): Promise<BookmarkData[]> {
   try {
     const result = await chrome.storage.sync.get([STORAGE_KEY]);
     const allBookmarks: Record<string, BookmarkData[]> = result[STORAGE_KEY] || {};
-
+    console.log('chatId received by Str : ', chatId);
+    console.log('Bookmarks of current chat : ', allBookmarks[chatId]);
     return allBookmarks[chatId] || [];
   } catch (error) {
     console.error("Error fetching bookmarks:", error);
