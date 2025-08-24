@@ -9,7 +9,7 @@ export async function getBookmarks(chatId: string): Promise<BookmarkData[]> {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     const allBookmarks: Record<string, BookmarkData[]> = stored ? JSON.parse(stored) : {};
-    console.log("chatId received by storage:", chatId);
+    console.log("chatId received by local storage:", chatId);
     console.log("Bookmarks of current chat:", allBookmarks[chatId]);
     return allBookmarks[chatId] || [];
   } catch (error) {

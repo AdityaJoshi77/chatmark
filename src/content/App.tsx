@@ -120,6 +120,7 @@ function App() {
   };
 
   const handleSave = async () => {
+    if (!chatId) return; // <-- wait for chatId
     if (!title.trim()) return;
 
     const newBookmark: BookmarkData = {
@@ -311,7 +312,7 @@ function App() {
                 </button>
                 <button
                   onClick={handleSave}
-                  disabled={!title.trim()}
+                  disabled={!title.trim() || !chatId}
                   className="px-3 py-1 text-xs text-gray-600 dark:text-black
                             bg-gray-300 dark:bg-gray-500
                            hover:bg-gray-100 dark:hover:bg-gray-300 rounded
