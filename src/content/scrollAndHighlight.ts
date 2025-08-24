@@ -24,29 +24,61 @@ export function scrollToAndHighlight(selector: string, snippet?: string) {
   // apply blink class
   bubble.classList.add("blink-bg");
 
+  // ✅ snippet highlighting
   if (snippet) {
-    const range = document.createRange();
-    const walker = document.createTreeWalker(bubble, NodeFilter.SHOW_TEXT);
+    const bubbleText = bubble.innerText;
+    const idx = bubbleText.indexOf(snippet);
 
-    while (walker.nextNode()) {
-      const node = walker.currentNode as Text;
-      const idx = node.nodeValue?.indexOf(snippet);
-      if (idx !== undefined && idx >= 0) {
-        range.setStart(node, idx);
-        range.setEnd(node, idx + snippet.length);
+    if (idx >= 0) {
+      const range = document.createRange();
+
+      let charCount = 0;
+      let startNode: Node | null = null,
+        endNode: Node | null = null;
+      let startOffset = 0,
+        endOffset = 0;
+
+      const walker = document.createTreeWalker(bubble, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        const node = walker.currentNode as Text;
+        const nextCharCount = charCount + node.nodeValue!.length;
+
+        if (!startNode && idx >= charCount && idx < nextCharCount) {
+          startNode = node;
+          startOffset = idx - charCount;
+        }
+
+        if (!endNode && idx + snippet.length > charCount && idx + snippet.length <= nextCharCount) {
+          endNode = node;
+          endOffset = idx + snippet.length - charCount;
+          break;
+        }
+
+        charCount = nextCharCount;
+      }
+
+      if (startNode && endNode) {
+        range.setStart(startNode, startOffset);
+        range.setEnd(endNode, endOffset);
 
         const mark = document.createElement("mark");
-        mark.style.backgroundColor = "yellow"; // ✅ snippet highlighted in yellow
-        range.surroundContents(mark);
-        break;
+        mark.style.backgroundColor = "yellow";
+        try {
+          range.surroundContents(mark);
+        } catch {
+          // if snippet spans multiple nodes, extract & wrap safely
+          const frag = range.extractContents();
+          mark.appendChild(frag);
+          range.insertNode(mark);
+        }
       }
     }
   }
 
-  // ✅ remove border highlight after ~4s, once blink finishes
+  // ✅ remove border highlight + cleanup after ~4s
   setTimeout(() => {
     bubble.style.outline = "";
     bubble.classList.remove("blink-bg");
     style.remove();
-  }, 4000); // matches 3 blinks at 0.8s each
+  }, 4000);
 }
