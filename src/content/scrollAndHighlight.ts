@@ -48,7 +48,11 @@ export function scrollToAndHighlight(selector: string, snippet?: string) {
           startOffset = idx - charCount;
         }
 
-        if (!endNode && idx + snippet.length > charCount && idx + snippet.length <= nextCharCount) {
+        if (
+          !endNode &&
+          idx + snippet.length > charCount &&
+          idx + snippet.length <= nextCharCount
+        ) {
           endNode = node;
           endOffset = idx + snippet.length - charCount;
           break;
@@ -63,13 +67,29 @@ export function scrollToAndHighlight(selector: string, snippet?: string) {
 
         const mark = document.createElement("mark");
         mark.style.backgroundColor = "yellow";
+        mark.style.color = "inherit";
+
         try {
           range.surroundContents(mark);
         } catch {
-          // if snippet spans multiple nodes, extract & wrap safely
+          // ✅ Multi-node fallback: only highlight the first node
           const frag = range.extractContents();
-          mark.appendChild(frag);
-          range.insertNode(mark);
+
+          // Find the first text node inside the fragment
+          const walker = document.createTreeWalker(frag, NodeFilter.SHOW_TEXT);
+          if (walker.nextNode()) {
+            const firstTextNode = walker.currentNode;
+            const firstRange = document.createRange();
+            firstRange.selectNodeContents(firstTextNode);
+
+            const firstMark = document.createElement("mark");
+            firstMark.style.backgroundColor = "yellow";
+            firstMark.style.color = "black";
+            firstRange.surroundContents(firstMark);
+          }
+
+          // Reinsert the fragment back into the DOM
+          range.insertNode(frag);
         }
       }
     }

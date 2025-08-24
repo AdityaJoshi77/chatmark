@@ -383,7 +383,7 @@ function App() {
           )}
         </div>
       </div>
-
+        {/* #1f2937,  */}
       <style>{`
         .custom-scrollbar {
           scrollbar-width: thin;
@@ -408,7 +408,7 @@ function App() {
           scrollbar-color: #4b5563 #1f2937;
         }
         .dark .custom-scrollbar::-webkit-scrollbar-track {
-          background: #1f2937;
+          background: inherit;
         }
         .dark .custom-scrollbar::-webkit-scrollbar-thumb {
           background-color: #4b5563;
