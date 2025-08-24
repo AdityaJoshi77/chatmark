@@ -45,14 +45,18 @@ function App() {
 
   // periodic check for chatId
   useEffect(() => {
-    const interval = setInterval( ()=> {
-      const pathname = window.location.href;
-      const id = pathname.split('/c/')[1] || "";
-      setChatId(id);
-    }, 2000)
+    let lastId = "";
+
+    const interval = setInterval(() => {
+      const id = window.location.href.split("/c/")[1] || "";
+      if (id !== lastId) {
+        lastId = id;
+        setChatId(id);
+      }
+    }, 500); // check every half second
 
     return () => clearInterval(interval);
-  })
+  }, []);
 
   // load bookmarks whenever chatId changes
   useEffect(() => {

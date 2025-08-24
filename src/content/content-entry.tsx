@@ -4,29 +4,29 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import { initSelectionListener } from "./selectionListener";
 
-// Inject root div into the ChatGPT UI container
-const mainChatContainerSelector = 'main[class*="overflow-y-auto"]';
-let mainChatContainer = document.querySelector(mainChatContainerSelector);
-
-if (!mainChatContainer) {
-  // Fallback for different DOM structures
-  mainChatContainer = document.body;
-}
-
 const rootId = "chatmark-root";
-let rootDiv = document.getElementById(rootId);
-if (!rootDiv) {
-  rootDiv = document.createElement("div");
+
+function injectApp() {
+  const mainChatContainerSelector = 'main[class*="overflow-y-auto"]';
+  let mainChatContainer = document.querySelector(mainChatContainerSelector);
+
+  if (!mainChatContainer) {
+    mainChatContainer = document.body; // fallback
+  }
+
+  if (document.getElementById(rootId)) return; // prevent duplicates
+
+  const rootDiv = document.createElement("div");
   rootDiv.id = rootId;
   mainChatContainer.appendChild(rootDiv);
+
+  createRoot(rootDiv).render(<App />);
+  initSelectionListener();
+
+  console.log("✅ ChatMark injected!");
 }
 
-
-// Render React UI
-createRoot(rootDiv).render(<App />);
-
-// Initialize the selection listener AFTER the App component is rendered,
-// ensuring openPanelWithSnippet is available.
-initSelectionListener();
-
-console.log("ChatMark content script loaded and initialized.");
+// Delay the injection a bit to let the DOM settle
+setTimeout(() => {
+  injectApp();
+}, 1000); // you can experiment: 500ms, 800ms, 1500ms
