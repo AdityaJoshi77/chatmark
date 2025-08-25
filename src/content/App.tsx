@@ -405,7 +405,7 @@ function App() {
           background-color: #6b7280;
         }
         .dark .custom-scrollbar {
-          scrollbar-color: #9ca3af #181818;
+          scrollbar-color: #5a5a5a #181818;
         }
         
         .line-clamp-2 {
