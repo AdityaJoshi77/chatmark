@@ -405,30 +405,16 @@ function App() {
           background-color: #6b7280;
         }
         .dark .custom-scrollbar {
-          scrollbar-color: #4b5563 #1f2937;
+          scrollbar-color: #9ca3af #181818;
         }
-        .dark .custom-scrollbar::-webkit-scrollbar-track {
-          background: inherit;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: #4b5563;
-          border: 2px solid #1f2937;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background-color: #6b7280;
-        }
+        
         .line-clamp-2 {
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
-        .dark .bg-gray-750 {
-          background-color: rgb(55, 65, 81);
-        }
-        .dark .hover\\:bg-gray-750:hover {
-          background-color: rgb(55, 65, 81);
-        }
+        
       `}</style>
     </div>
   );
