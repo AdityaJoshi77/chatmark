@@ -67,7 +67,9 @@ export function scrollToAndHighlight(selector: string, snippet?: string) {
 
         const mark = document.createElement("mark");
         mark.style.backgroundColor = "yellow";
-        mark.style.color = "inherit";
+        mark.style.color = "black";
+        mark.style.whiteSpace = "nowrap";   // ✅ no line breaks
+        mark.style.display = "inline";      // ✅ keep inline formatting
 
         try {
           range.surroundContents(mark);
@@ -85,6 +87,9 @@ export function scrollToAndHighlight(selector: string, snippet?: string) {
             const firstMark = document.createElement("mark");
             firstMark.style.backgroundColor = "yellow";
             firstMark.style.color = "black";
+            firstMark.style.whiteSpace = "nowrap";
+            firstMark.style.display = "inline";
+
             firstRange.surroundContents(firstMark);
           }
 
