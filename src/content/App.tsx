@@ -6,7 +6,7 @@ import {
   MdBookmark,
   MdClose,
 } from "react-icons/md";
-
+import { HiOutlineTrash } from "react-icons/hi2";
 import type { BookmarkData } from "./types";
 import { getBookmarks, saveBookmarks } from "./storage";
 import { scrollToAndHighlight } from "./scrollAndHighlight";
@@ -338,7 +338,7 @@ function App() {
                       key={bm.id}
                       className="group p-3 rounded border border-gray-200 dark:border-gray-700
                                bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750
-                               cursor-pointer transition-colors duration-200"
+                               cursor-pointer transition-colors duration-200 mr-2"
                       onClick={() => handleBookmarkClick(bm)}
                     >
                       <div className="flex justify-between items-start mb-2">
@@ -354,12 +354,12 @@ function App() {
                             setBookmarks(updated);
                             await saveBookmarks(chatId, updated);
                           }}
-                          className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-600
+                          className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-400
                                    hover:bg-gray-100 dark:hover:bg-gray-700 rounded
                                    transition-all duration-200"
                           title="Delete"
                         >
-                          <MdDeleteForever size={18} />
+                          <HiOutlineTrash  size={20} />
                         </button>
                       </div>
 
