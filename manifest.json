@@ -13,13 +13,14 @@
       "16": "icons/icons16.png",
       "48": "icons/icons48.png",
       "128": "icons/icons128.png"
-    }
+    },
+    "default_popup": "popup/index.html" 
   },
   "content_scripts": [
     {
       "matches": ["https://chatgpt.com/c/*"],
       "js": ["content/index.js"],
-      "css": ["assets/content.css"] 
+      "css": ["assets/content.css"]
     }
   ],
   "permissions": [],

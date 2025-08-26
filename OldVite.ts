@@ -21,24 +21,22 @@ export default defineConfig(({ command }) => {
         targets: [
           { src: "manifest.json", dest: "." },
           { src: "public/icons/*", dest: "icons" },
-
-          // 👇 Copy popup folder directly into dist/popup
-          { src: "src/popup/*", dest: "popup" },
         ],
       }),
     ],
     build: {
       rollupOptions: {
         input: {
-          // Only bundle your actual scripts
+          // background: resolve(__dirname, "src/background/index.ts"),
           content: resolve(__dirname, "src/content/content-entry.tsx"),
         },
         output: {
           entryFileNames: (chunk) => {
+            // if (chunk.name === "background") return "background/index.js";
             if (chunk.name === "content") return "content/index.js";
             return "assets/[name].js";
           },
-          format: "esm",
+          format: "esm", // ✅ Use ESM instead of IIFE
           chunkFileNames: "assets/[name].js",
           assetFileNames: "assets/[name].[ext]",
         },

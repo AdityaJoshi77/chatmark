@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
@@ -21,21 +22,23 @@ export default defineConfig(({ command }) => {
         targets: [
           { src: "manifest.json", dest: "." },
           { src: "public/icons/*", dest: "icons" },
-
-          // 👇 Copy popup folder directly into dist/popup
-          { src: "src/popup/*", dest: "popup" },
+          // Add this target to copy popup.html to the 'popup' folder in the dist directory
+          { src: "src/popup/popup.html", dest: "popup" },
         ],
       }),
     ],
     build: {
       rollupOptions: {
         input: {
-          // Only bundle your actual scripts
+          // Add the popup.tsx file as a new entry point
           content: resolve(__dirname, "src/content/content-entry.tsx"),
+          popup: resolve(__dirname, "src/popup/popup.tsx"),
         },
         output: {
           entryFileNames: (chunk) => {
             if (chunk.name === "content") return "content/index.js";
+            // Check for the 'popup' chunk and place it in the assets folder
+            if (chunk.name === "popup") return "assets/popup.js";
             return "assets/[name].js";
           },
           format: "esm",
