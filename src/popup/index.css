@@ -22,6 +22,16 @@ body {
   margin-bottom: 12px;
 }
 
+.popup-logo {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 60px;  /* adjust size */
+  height: 60px;
+  border-radius: 6px; /* optional: soften edges */
+}
+
+
 .popup-text {
   font-size: 0.95rem;
   margin-bottom: 8px;
