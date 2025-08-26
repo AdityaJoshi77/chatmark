@@ -23,6 +23,6 @@
       "css": ["assets/content.css"]
     }
   ],
-  "permissions": [],
+  "permissions": ["tabs"],
   "host_permissions": ["https://chatgpt.com/c/*"]
 }
