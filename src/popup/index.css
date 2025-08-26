@@ -8,8 +8,12 @@ body {
 }
 
 .popup-container {
+  display:"flex";
+  flex-direction: "column";
   padding: 16px;
-  max-width: 320px;
+  width: 320px;
+  
+  border-radius: 10%;
 }
 
 .popup-title {
@@ -27,6 +31,11 @@ body {
   padding-left: 20px;
   font-size: 0.9rem;
   margin-bottom: 16px;
+}
+
+.popup-list li {
+  margin-bottom: 0.75rem; /* adds vertical gap between items */
+  line-height: 1.5;       /* makes multi-line text breathe */
 }
 
 .bubble-preview {
@@ -60,7 +69,7 @@ body {
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: #111827;
+    background-color: #212121;
     color: #d1d5db;
   }
 

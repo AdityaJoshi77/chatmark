@@ -13,22 +13,23 @@
   </head>
   <body>
     <div class="popup-container">
-      <h1 class="popup-title">Welcome to ChatMark 🎉</h1>
+      <h1 class="popup-title">Welcome to ChatMark</h1>
       <p class="popup-text">Here’s how to use ChatMark:</p>
-      <ul class="popup-list">
-        <li>✅ Highlight a chat message to save it.</li>
+      <ul class="popup-list" style="row-gap: 10px;">
+        <li>Highlight a chat message to save it.</li>
         <li>
-          ✅ Look for the bookmark bubble on the top right of the chat screen.
+          <span style="display: flex; flex-direction: row">
+            Look for the bookmark bubble on the top right of the chat screen to
+            open the panel for saved bookmarks.
+            <span class="bubble-preview">
+              <button class="bubble-button" title="Open ChatMark">
+                <span class="material-icons">bookmark</span>
+              </button>
+            </span>
+          </span>
         </li>
-        <li>✅ If you don’t see the bubble, refresh the page once.</li>
+        <li>If you don’t see the bubble, refresh the page once.</li>
       </ul>
-
-      <div class="bubble-preview">
-        <button class="bubble-button" title="Open ChatMark">
-          <span class="material-icons">bookmark</span>
-        </button>
-        <span class="bubble-label">This is the bookmark bubble</span>
-      </div>
     </div>
   </body>
 </html>
