@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (logo) {
     logo.addEventListener("click", () => {
       chrome.tabs.create({
-        url: "https://chromewebstore.google.com/detail/jkdclcljnfbbnfnbkiokfcanncaejcea" // <-- replace with your extension ID
+        url: "https://chromewebstore.google.com/detail/jldfliphfocdkkgogbhocemkfaoajjpi" // <-- replace with your extension ID
       });
     });
   }
