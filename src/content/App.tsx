@@ -6,6 +6,7 @@ import { getBookmarks } from "./storage";
 import { scrollToAndHighlight } from "./scrollAndHighlight";
 import Bookmark from "./Bookmark";
 import BookmarkSaveForm from "./BookmarkSaveForm";
+import ChatPinForm from "./ChatPinForm";
 
 // Function called by the floating selection icon
 let openPanelFn: (snippet?: string, bubble?: HTMLElement) => void;
@@ -152,7 +153,10 @@ function App() {
                      w-10 h-10 rounded-full shadow-lg border border-gray-200 dark:border-gray-700
                      hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900  dark:hover:text-gray-100
                      transition-all duration-200 z-50"
-          onClick={() => setIsPanelOpen(true)}
+          onClick={() => {
+            setIsPanelOpen(true);
+            setShowBookMarkForm(true);
+          }}
           title="Pin this Chat"
         >
           <VscPinned size={18} />
@@ -215,7 +219,6 @@ function App() {
               {/* BOOKMARK SORT/FILTER BUTTONS */}
               {bookmarks.length > 0 && (
                 <div className="flex space-x-2 mb-4">
-                  
                   {/* Oldest/Latest */}
                   <button
                     onClick={() => setSortLatest(!sortLatest)}
