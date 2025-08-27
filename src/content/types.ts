@@ -16,3 +16,12 @@ export interface BookmarkData {
   url?: string;
   notes?: Note[];         // Optional array of notes
 }
+
+export interface PinnedChat {
+  id: string;           // Unique chat identifier from the URL (everything after /c/)
+  title: string;        // User-defined title for the chat
+  description?: string; // Optional short description/context about the chat
+  url: string;          // Full URL of the chat
+  datePinned: string;   // ISO timestamp of when the chat was pinned
+}
+

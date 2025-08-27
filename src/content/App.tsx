@@ -1,14 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import {
-  MdSearch,
-  MdSort,
-  MdBookmark,
-  MdClose,
-} from "react-icons/md";
-import { HiOutlineTrash } from "react-icons/hi2";
+import { MdSearch, MdSort, MdBookmark, MdClose } from "react-icons/md";
 import type { BookmarkData } from "./types";
-import { getBookmarks, saveBookmarks } from "./storage";
+import { getBookmarks } from "./storage";
 import { scrollToAndHighlight } from "./scrollAndHighlight";
+import Bookmark from "./Bookmark";
+import BookmarkSaveForm from "./BookmarkSaveForm";
 
 // Function called by the floating selection icon
 let openPanelFn: (snippet?: string, bubble?: HTMLElement) => void;
@@ -20,7 +16,6 @@ function App() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [bookmarks, setBookmarks] = useState<BookmarkData[]>([]);
   const [chatId, setChatId] = useState<string>("");
-  const [title, setTitle] = useState("");
   const [snippet, setSnippet] = useState("");
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [showBookMarkForm, setShowBookMarkForm] = useState<boolean>(false);
@@ -97,7 +92,6 @@ function App() {
         setIsPanelOpen(false);
         setShowBookMarkForm(false);
         setSnippet("");
-        setTitle("");
       }
     };
 
@@ -109,34 +103,6 @@ function App() {
     setIsPanelOpen(false);
     setSnippet("");
     setShowBookMarkForm(false);
-    setSearchQuery("");
-  };
-
-  const handleSave = async () => {
-    if (!chatId) return; // <-- wait for chatId
-    if (!title.trim()) return;
-
-    const newBookmark: BookmarkData = {
-      id: Date.now().toString(),
-      title,
-      snippet,
-      role: anchor?.dataset.messageAuthorRole!,
-      timestamp: Date.now(),
-      anchor: bubbleToSelector(anchor),
-      selectionText: snippet,
-      chatId,
-      url: window.location.href,
-    };
-
-    const updated = [...bookmarks, newBookmark];
-    setBookmarks(updated);
-    setTitle("");
-    setSnippet("");
-    setAnchor(null);
-    setShowBookMarkForm(false);
-    setIsPanelOpen(false);
-
-    await saveBookmarks(chatId, updated);
   };
 
   const handleBookmarkClick = async (bm: BookmarkData) => {
@@ -160,18 +126,8 @@ function App() {
       sortLatest ? b.timestamp - a.timestamp : a.timestamp - b.timestamp
     );
 
-  const formatTime = (timestamp: number) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-
-    if (diffInHours < 1) return "Just now";
-    if (diffInHours < 24) return `${Math.floor(diffInHours)}h ago`;
-    if (diffInHours < 48) return "Yesterday";
-    return date.toLocaleDateString();
-  };
-
   return (
+    // EXTENSION TOGGLE BUBBLE
     <div className="relative">
       {!isPanelOpen && (
         <button
@@ -187,6 +143,7 @@ function App() {
         </button>
       )}
 
+      {/* EXTENSION PANEL */}
       <div
         ref={panelRef}
         className={`fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-800 
@@ -220,6 +177,7 @@ function App() {
 
           {!showBookMarkForm && (
             <>
+              {/* SEARCH BAR */}
               <div className="relative mb-3">
                 <MdSearch
                   className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -238,6 +196,7 @@ function App() {
                 />
               </div>
 
+              {/* BOOKMARK SORT/FILTER BUTTONS */}
               {bookmarks.length > 0 && (
                 <div className="flex space-x-2 mb-4">
                   <button
@@ -270,62 +229,27 @@ function App() {
             </>
           )}
 
+          {/* BOOKMARK SAVING FORM */}
           {showBookMarkForm && (
-            <form
-              onSubmit={handleSave} // ✅ trigger save on form submit
-              className="border border-gray-200 dark:border-gray-600 rounded p-3 mb-4 bg-gray-50 dark:bg-gray-700"
-            >
-              <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-300">
-                Title
-              </label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded border border-gray-200 dark:border-gray-600
-             bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
-             placeholder-gray-400 dark:placeholder-gray-500
-             focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600
-             transition-colors duration-200 mb-3"
-                placeholder="Enter title..."
-                autoFocus
-              />
-
-              <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-2 mb-3">
-                <p className="text-xs text-gray-600 dark:text-gray-400 italic">
-                  "{snippet}"
-                </p>
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button" // ✅ prevent accidental submit on cancel
-                  onClick={handleCancel}
-                  className="px-3 py-1 text-xs bg-gray-900 dark:bg-gray-600 text-white
-               hover:bg-gray-800 dark:hover:bg-gray-500 rounded
-               transition-colors duration-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit" // ✅ submits the form
-                  disabled={!title.trim() || !chatId}
-                  className="px-3 py-1 text-xs text-gray-600 dark:text-black
-                bg-gray-300 dark:bg-gray-500
-               hover:bg-gray-100 dark:hover:bg-gray-300 rounded
-               disabled:opacity-50 disabled:cursor-not-allowed
-               transition-colors duration-200"
-                >
-                  Save
-                </button>
-              </div>
-            </form>
+            <BookmarkSaveForm
+              snippet={snippet}
+              chatId={chatId}
+              anchor={anchor}
+              bookmarks={bookmarks}
+              setSnippet={setSnippet}
+              setAnchor={setAnchor}
+              setBookmarks={setBookmarks}
+              setIsPanelOpen={setIsPanelOpen}
+              setShowBookMarkForm={setShowBookMarkForm}
+            />
           )}
 
+          {/* THE BOOKMARKS */}
           {!showBookMarkForm && (
             <div className="flex-1 overflow-hidden">
               {filteredBookmarks.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-32 text-center">
+                  {/* Fallback for no bookmarks */}
                   <MdBookmark
                     size={24}
                     className="text-gray-300 dark:text-gray-600 mb-2"
@@ -336,49 +260,15 @@ function App() {
                 </div>
               ) : (
                 <div className="space-y-2 h-full overflow-y-auto custom-scrollbar">
-                  {filteredBookmarks.map((bm) => (
-                    <div
-                      key={bm.id}
-                      className="group p-3 rounded border border-gray-200 dark:border-gray-700
-                               bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750
-                               cursor-pointer transition-colors duration-200 mr-2"
-                      onClick={() => handleBookmarkClick(bm)}
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate flex-1 mr-2">
-                          {bm.title}
-                        </h3>
-                        <button
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            const updated = bookmarks.filter(
-                              (b) => b.id !== bm.id
-                            );
-                            setBookmarks(updated);
-                            await saveBookmarks(chatId, updated);
-                          }}
-                          className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-400
-                                   hover:bg-gray-100 dark:hover:bg-gray-700 rounded
-                                   transition-all duration-200"
-                          title="Delete"
-                        >
-                          <HiOutlineTrash size={20} />
-                        </button>
-                      </div>
-
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
-                        {bm.snippet}
-                      </p>
-
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs px-2 py-0.5 rounded text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700">
-                          {bm.role}
-                        </span>
-                        <span className="text-xs text-gray-400 dark:text-gray-500">
-                          {formatTime(bm.timestamp)}
-                        </span>
-                      </div>
-                    </div>
+                  {filteredBookmarks.map((bm, index) => (
+                    <Bookmark
+                      key={index}
+                      bm={bm}
+                      chatId={chatId}
+                      bookmarks={bookmarks}
+                      handleBookmarkClick={handleBookmarkClick}
+                      setBookmarks={setBookmarks}
+                    />
                   ))}
                 </div>
               )}
@@ -423,10 +313,21 @@ function App() {
   );
 }
 
-function bubbleToSelector(el: Element | null): string {
+export function bubbleToSelector(el: Element | null): string {
   if (!el) return "";
   const id = el.getAttribute("data-message-id");
   return id ? `[data-message-id="${id}"]` : "";
 }
+
+export const formatTime = (timestamp: number) => {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+
+  if (diffInHours < 1) return "Just now";
+  if (diffInHours < 24) return `${Math.floor(diffInHours)}h ago`;
+  if (diffInHours < 48) return "Yesterday";
+  return date.toLocaleDateString();
+};
 
 export default App;
