@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { MdSearch, MdSort, MdBookmark, MdClose } from "react-icons/md";
+import { VscPinned } from "react-icons/vsc";
 import type { BookmarkData } from "./types";
 import { getBookmarks } from "./storage";
 import { scrollToAndHighlight } from "./scrollAndHighlight";
@@ -19,6 +20,7 @@ function App() {
   const [snippet, setSnippet] = useState("");
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [showBookMarkForm, setShowBookMarkForm] = useState<boolean>(false);
+  const [showPinForm, setShowPinForm] = useState<boolean>(false);
   const [sortLatest, setSortLatest] = useState<boolean>(true);
   const [roleFilter, setRoleFilter] = useState<"all" | "user" | "assistant">(
     "all"
@@ -143,6 +145,20 @@ function App() {
         </button>
       )}
 
+      {!isPanelOpen && (
+        <button
+          className="fixed top-44 right-4 flex items-center justify-center 
+                     bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300
+                     w-10 h-10 rounded-full shadow-lg border border-gray-200 dark:border-gray-700
+                     hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900  dark:hover:text-gray-100
+                     transition-all duration-200 z-50"
+          onClick={() => setIsPanelOpen(true)}
+          title="Pin this Chat"
+        >
+          <VscPinned size={18} />
+        </button>
+      )}
+
       {/* EXTENSION PANEL */}
       <div
         ref={panelRef}
@@ -199,6 +215,8 @@ function App() {
               {/* BOOKMARK SORT/FILTER BUTTONS */}
               {bookmarks.length > 0 && (
                 <div className="flex space-x-2 mb-4">
+                  
+                  {/* Oldest/Latest */}
                   <button
                     onClick={() => setSortLatest(!sortLatest)}
                     className="flex items-center space-x-1 px-2 py-1 text-xs rounded
@@ -209,6 +227,7 @@ function App() {
                     <span>{sortLatest ? "Latest" : "Oldest"}</span>
                   </button>
 
+                  {/* Filter: User/Assistant */}
                   <select
                     value={roleFilter}
                     onChange={(e) =>
@@ -220,10 +239,21 @@ function App() {
                              bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300
                              focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 cursor-pointer"
                   >
-                    <option value="all">All</option>
-                    <option value="user">User</option>
-                    <option value="assistant">Assistant</option>
+                    <option value="all">All msgs</option>
+                    <option value="user">User's msgs</option>
+                    <option value="assistant">GPT's msgs</option>
                   </select>
+
+                  {/* Pinned Chats */}
+                  <button
+                    onClick={() => setSortLatest(!sortLatest)}
+                    className="flex items-center space-x-1 px-2 py-1 text-xs rounded
+                             bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600
+                             text-gray-600 dark:text-gray-300 transition-colors duration-200"
+                  >
+                    <VscPinned size={16} />
+                    <span>Pinned Chats</span>
+                  </button>
                 </div>
               )}
             </>

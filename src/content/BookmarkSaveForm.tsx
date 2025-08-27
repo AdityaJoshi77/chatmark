@@ -36,7 +36,7 @@ const handleSave = async (
     id: Date.now().toString(),
     title,
     snippet,
-    role: anchor?.dataset.messageAuthorRole!,
+    role: anchor?.dataset.messageAuthorRole! === "user" ? "User" : "ChatGPT",
     timestamp: Date.now(),
     anchor: bubbleToSelector(anchor), // ✅ safe null check
     selectionText: snippet,
