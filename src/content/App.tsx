@@ -331,7 +331,7 @@ function App() {
                     className="text-gray-300 dark:text-gray-600 mb-2"
                   />
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {searchQuery ? "No matches" : "No bookmarks"}
+                    {searchQuery ? "No matches" : "No bookmarks for this Chat"}
                   </p>
                 </div>
               ) : (
