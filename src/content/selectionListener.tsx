@@ -1,6 +1,7 @@
 // src/content/selectionListener.tsx
 import { createRoot } from "react-dom/client";
 import type { Root } from "react-dom/client";
+import AddNoteIcon from "./AddNoteIcon";
 import BookmarkIcon from "./BookmarkIcon";
 import { openPanelWithSnippet } from "./App";
 
@@ -15,8 +16,11 @@ export function initSelectionListener() {
 
 function handleMouseDown(event: MouseEvent) {
   const target = event.target as HTMLElement;
-  // Remove icon if clicked anywhere except the icon itself
-  if (!target.closest(".bookmark-icon-btn")) {
+  // Remove icon if clicked anywhere except inside the container
+  if (
+    !target.closest(".bookmark-icon-btn") &&
+    !target.closest(".add-note-icon-btn")
+  ) {
     removeIcon();
   }
 }
@@ -38,7 +42,11 @@ function handleKeyUp(event: KeyboardEvent) {
 
 function checkAndShowIcon() {
   const selection = window.getSelection();
-  if (!selection || selection.toString().trim() === "" || selection.rangeCount === 0) {
+  if (
+    !selection ||
+    selection.toString().trim() === "" ||
+    selection.rangeCount === 0
+  ) {
     removeIcon();
     return;
   }
@@ -98,7 +106,12 @@ function checkAndShowIcon() {
   renderIcon(top, left, selection.toString(), parentBubble);
 }
 
-function renderIcon(top: number, left: number, snippet: string, bubble: HTMLElement) {
+function renderIcon(
+  top: number,
+  left: number,
+  snippet: string,
+  bubble: HTMLElement
+) {
   // Remove previous icon if exists
   removeIcon();
 
@@ -114,21 +127,35 @@ function renderIcon(top: number, left: number, snippet: string, bubble: HTMLElem
 
   root = createRoot(iconContainer);
   root.render(
-    <BookmarkIcon
-      // top={0} // iconContainer already positioned absolutely
-      // left={0}
-      onClick={(e) => {
-        e.stopPropagation();
-        openPanelWithSnippet(snippet, bubble);
-        removeIcon();
-      }}
-    />
+    <div
+      className="bookmark-icons-wrapper flex flex-col gap-1"
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <BookmarkIcon
+        onClick={(e) => {
+          e.stopPropagation();
+          const fn = (window as any).addInstantBookmarkFn;
+          if (fn) fn(snippet, bubble);
+          setTimeout(removeIcon, 0); // ensures unmount after click finishes
+        }}
+      />
+
+      <AddNoteIcon
+        onClick={(e) => {
+          e.stopPropagation();
+          openPanelWithSnippet(snippet, bubble);
+          removeIcon();
+        }}
+      />
+    </div>
   );
 }
 
 function removeIcon() {
-  if (iconContainer && root) {
-    root.unmount();
+  if (iconContainer) {
+    try {
+      if (root) root.unmount();
+    } catch {}
     iconContainer.remove();
   }
   iconContainer = null;

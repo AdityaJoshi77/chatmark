@@ -30,6 +30,29 @@ export async function getBookmarks(chatId: string): Promise<BookmarkData[]> {
   }
 }
 
+/**
+ * 
+ * Instant Bookmarking
+ */
+export async function addBookmark(chatId: string, newBookmark: BookmarkData): Promise<void> {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const allBookmarks: Record<string, BookmarkData[]> = stored ? JSON.parse(stored) : {};
+
+    // Ensure we have an array for this chat
+    if (!Array.isArray(allBookmarks[chatId])) {
+      allBookmarks[chatId] = [];
+    }
+
+    // Append the new bookmark
+    allBookmarks[chatId].push(newBookmark);
+
+    // Save back to localStorage
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allBookmarks));
+  } catch (error) {
+    console.error("Error adding bookmark:", error);
+  }
+}
 
 /**
  * Save bookmarks for a specific chat

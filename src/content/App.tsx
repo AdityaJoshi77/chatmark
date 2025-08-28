@@ -9,7 +9,12 @@ import {
 import { VscPinned } from "react-icons/vsc";
 import { RiUnpinFill } from "react-icons/ri";
 import type { BookmarkData, PinnedChat } from "./types";
-import { getBookmarks, getPinnedChats, removePinnedChat } from "./storage";
+import {
+  addBookmark,
+  getBookmarks,
+  getPinnedChats,
+  removePinnedChat,
+} from "./storage";
 import { scrollToAndHighlight } from "./scrollAndHighlight";
 import Bookmark from "./Bookmark";
 import BookmarkSaveForm from "./BookmarkSaveForm";
@@ -20,6 +25,13 @@ import PinnedChatCard from "./PinnedChat";
 let openPanelFn: (snippet?: string, bubble?: HTMLElement) => void;
 export function openPanelWithSnippet(snippet?: string, bubble?: HTMLElement) {
   if (openPanelFn) openPanelFn(snippet, bubble);
+}
+
+let addInstantBookmarkFn:
+  | ((snippet: string, bubble: HTMLElement) => void)
+  | null = null;
+export function registerAddInstantBookmark(fn: typeof addInstantBookmarkFn) {
+  addInstantBookmarkFn = fn;
 }
 
 function App() {
@@ -49,9 +61,37 @@ function App() {
       setSnippet(newSnippet || "");
       setAnchor(bubble || null);
       setIsPanelOpen(true);
+      setIsPinnedMode(false);
       setShowBookMarkForm(true);
     };
   }, []);
+
+  useEffect(() => {
+    registerAddInstantBookmark(async (snippet, bubble) => {
+      if (!chatId) return;
+
+      const newBookmark: BookmarkData = {
+        id: Date.now().toString(),
+        chatId,
+        title: "", // empty for instant bookmark
+        snippet,
+        role:
+          bubble.dataset.messageAuthorRole === "assistant" ? "ChatGPT" : "User",
+        timestamp: Date.now(),
+        anchor: bubbleToSelector(bubble),
+        selectionText: snippet,
+      };
+
+      // 1️⃣ Update React state
+      setBookmarks((prev) => [...prev, newBookmark]);
+
+      // 2️⃣ Persist to storage
+      await addBookmark(chatId, newBookmark);
+    });
+
+    // expose to window for content script
+    (window as any).addInstantBookmarkFn = addInstantBookmarkFn;
+  }, [chatId]);
 
   useEffect(() => {
     let lastId = "";

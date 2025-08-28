@@ -30,7 +30,7 @@ const handleSave = async (
   setTitle: React.Dispatch<React.SetStateAction<string>>
 ) => {
   if (!chatId) return; // <-- wait for chatId
-  if (!title.trim()) return;
+  if (!snippet.trim()) return;
 
   const newBookmark: BookmarkData = {
     id: Date.now().toString(),
@@ -87,8 +87,19 @@ const BookmarkSaveForm = ({
       }}
       className="border border-gray-200 dark:border-gray-600 rounded p-3 mb-4 bg-gray-50 dark:bg-gray-700"
     >
-      <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-300">
-        About: 
+      {/* Titular Snippet of the Bookmark */}
+      <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-50">
+        Title Snippet: 
+      </label>
+      <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-2 mb-3">
+        <p className="text-gray-600 dark:text-gray-50">
+          "{snippet}"
+        </p>
+      </div>
+
+
+      <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-50">
+        About {'(Optional)'}: 
       </label>
       <input
         type="text"
@@ -99,15 +110,9 @@ const BookmarkSaveForm = ({
              placeholder-gray-400 dark:placeholder-gray-500
              focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600
              transition-colors duration-200 mb-3"
-        placeholder="Enter title..."
+        placeholder="Something to remember the bookmark..."
         autoFocus
       />
-
-      <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-2 mb-3">
-        <p className="text-xs text-gray-600 dark:text-gray-400 italic">
-          "{snippet}"
-        </p>
-      </div>
 
       <div className="flex justify-end space-x-2">
         <button
@@ -125,7 +130,7 @@ const BookmarkSaveForm = ({
         </button>
         <button
           type="submit" // ✅ submits the form
-          disabled={!title.trim() || !chatId}
+          disabled={!snippet.trim() || !chatId}
           className="px-3 py-1 text-xs text-gray-600 dark:text-black
                 bg-gray-300 dark:bg-gray-500
                hover:bg-gray-100 dark:hover:bg-gray-300 rounded

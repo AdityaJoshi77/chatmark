@@ -1,18 +1,24 @@
 import { HiOutlineTrash } from "react-icons/hi2";
 import type { BookmarkData } from "./types";
 import { saveBookmarks } from "./storage";
-import {formatTime}  from "./App";
+import { formatTime } from "./App";
 
-interface BookmarkProps{
-    key?: number;
-    bm: BookmarkData;
-    chatId: string;
-    bookmarks: BookmarkData[];
-    handleBookmarkClick: (bm: BookmarkData) => void;
-    setBookmarks: React.Dispatch<React.SetStateAction<BookmarkData[]>>;
+interface BookmarkProps {
+  key?: number;
+  bm: BookmarkData;
+  chatId: string;
+  bookmarks: BookmarkData[];
+  handleBookmarkClick: (bm: BookmarkData) => void;
+  setBookmarks: React.Dispatch<React.SetStateAction<BookmarkData[]>>;
 }
 
-const Bookmark = ({bm, chatId, bookmarks, handleBookmarkClick, setBookmarks}: BookmarkProps) => {
+const Bookmark = ({
+  bm,
+  chatId,
+  bookmarks,
+  handleBookmarkClick,
+  setBookmarks,
+}: BookmarkProps) => {
   return (
     <div
       key={bm.id}
@@ -22,8 +28,10 @@ const Bookmark = ({bm, chatId, bookmarks, handleBookmarkClick, setBookmarks}: Bo
       onClick={() => handleBookmarkClick(bm)}
     >
       <div className="flex justify-between items-start mb-2">
-        <h3 className="text-sm font-medium text-gray-900 
-                    dark:text-gray-100 truncate flex-1 mr-2">
+        <h3
+          className="text-sm font-medium text-gray-900 
+                    dark:text-gray-100 truncate flex-1 mr-2"
+        >
           {bm.snippet}
         </h3>
         <button
@@ -42,9 +50,11 @@ const Bookmark = ({bm, chatId, bookmarks, handleBookmarkClick, setBookmarks}: Bo
         </button>
       </div>
 
-      <p className="text-xs text-gray-700 dark:text-gray-300 mb-2 line-clamp-2">
-        About: {bm.title}
-      </p>
+      {bm.title.length > 0 && (
+        <p className="text-xs text-gray-700 dark:text-gray-300 mb-2 line-clamp-2">
+          About: {bm.title}
+        </p>
+      )}
 
       <div className="flex justify-between items-center">
         <span className="text-xs px-2 py-0.5 rounded text-gray-500 dark:text-gray-200 bg-gray-100 dark:bg-gray-700">
