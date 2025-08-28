@@ -24,7 +24,7 @@ body {
 
 .popup-logo {
   position: absolute;
-  top: 1rem;
+  top: 2rem;
   right: 1rem;
   width: 60px;  /* adjust size */
   height: 60px;
@@ -105,4 +105,34 @@ body {
 .bubble-label {
   font-size: 0.85rem;
   color: #555;
+}
+
+/* Footer section */
+.popup-footer {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.footer-link {
+  font-size: 0.85rem;
+  color: #2563eb; /* blue-600 */
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+  color: #1d4ed8; /* darker blue */
+  text-decoration: underline;
+}
+
+/* Dark mode for footer */
+@media (prefers-color-scheme: dark) {
+  .footer-link {
+    color: #60a5fa; /* lighter blue for dark mode */
+  }
+
+  .footer-link:hover {
+    color: #3b82f6;
+  }
 }
