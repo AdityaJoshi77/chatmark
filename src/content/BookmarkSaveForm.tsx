@@ -88,7 +88,7 @@ const BookmarkSaveForm = ({
       className="border border-gray-200 dark:border-gray-600 rounded p-3 mb-4 bg-gray-50 dark:bg-gray-700"
     >
       <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-300">
-        Title
+        About: 
       </label>
       <input
         type="text"

@@ -5,14 +5,23 @@ interface FilterSelectProps {
   label?: string;
 }
 
-const FilterSelect: React.FC<FilterSelectProps> = ({ value, options, onChange, label }) => {
+const FilterSelect: React.FC<FilterSelectProps> = ({
+  value,
+  options,
+  onChange,
+  label,
+}) => {
   return (
     <div className="flex items-center space-x-1">
-      {label && <span className="text-xs text-gray-500 dark:text-gray-400">{label}</span>}
+      {label && (
+        <span className="text-xs text-gray-500 dark:text-gray-400">
+          {label}
+        </span>
+      )}
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="px-2 py-1 text-xs rounded border border-gray-200 dark:border-gray-600
+        className="pl-2 pr-6 py-1  text-xs rounded border border-gray-200 dark:border-gray-600
                    bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300
                    focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 cursor-pointer"
       >

@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { MdSearch, MdSort, MdBookmark, MdClose, MdPushPin } from "react-icons/md";
+import {
+  MdSearch,
+  MdSort,
+  MdBookmark,
+  MdClose,
+  MdPushPin,
+} from "react-icons/md";
 import { VscPinned } from "react-icons/vsc";
 import { RiUnpinFill } from "react-icons/ri";
 import type { BookmarkData, PinnedChat } from "./types";
@@ -29,9 +35,10 @@ function App() {
   const [showBookMarkForm, setShowBookMarkForm] = useState<boolean>(false);
   const [showPinForm, setShowPinForm] = useState<boolean>(false);
   const [sortLatest, setSortLatest] = useState<boolean>(true);
-  const [roleFilter, setRoleFilter] = useState<
-    "all" | "user" | "assistant" | "ChatGPT"
-  >("all");
+  const [roleFilter, setRoleFilter] = useState<"All" | "User" | "ChatGPT">(
+    "All"
+  );
+
   const [tagFilter, setTagFilter] = useState("all");
   const [isPinnedMode, setIsPinnedMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -131,7 +138,7 @@ function App() {
   };
 
   const filteredBookmarks = bookmarks
-    .filter((b) => roleFilter === "all" || b.role === roleFilter)
+    .filter((b) => roleFilter === "All" || b.role === roleFilter)
     .filter((b) =>
       [b.title, b.snippet]
         .join(" ")
@@ -205,7 +212,7 @@ function App() {
       {/* Panel */}
       <div
         ref={panelRef}
-        className={`fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-out z-40 ${
+        className={`fixed top-0 right-0 h-full w-96 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-out z-40 ${
           isPanelOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -286,11 +293,11 @@ function App() {
 
                 {!isPinnedMode && (
                   <FilterSelect
-                    value={roleFilter}
-                    options={["all", "user", "assistant"]}
+                    value={roleFilter + " " + "Messages"}
+                    options={["All Messages", "User Messages", "ChatGPT Messages"]}
                     onChange={(val: string) =>
                       setRoleFilter(
-                        val as "all" | "user" | "assistant" | "ChatGPT"
+                        val.split(" ")[0] as "All" | "User" | "ChatGPT"
                       )
                     }
                     // label="Filter"

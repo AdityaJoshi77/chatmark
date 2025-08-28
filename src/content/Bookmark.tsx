@@ -24,7 +24,7 @@ const Bookmark = ({bm, chatId, bookmarks, handleBookmarkClick, setBookmarks}: Bo
       <div className="flex justify-between items-start mb-2">
         <h3 className="text-sm font-medium text-gray-900 
                     dark:text-gray-100 truncate flex-1 mr-2">
-          {bm.title}
+          {bm.snippet}
         </h3>
         <button
           onClick={async (e) => {
@@ -38,12 +38,12 @@ const Bookmark = ({bm, chatId, bookmarks, handleBookmarkClick, setBookmarks}: Bo
                    rounded transition-all duration-200"
           title="Delete"
         >
-          <HiOutlineTrash size={20} />
+          <HiOutlineTrash size={18} />
         </button>
       </div>
 
       <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
-        {bm.snippet}
+        About: {bm.title}
       </p>
 
       <div className="flex justify-between items-center">

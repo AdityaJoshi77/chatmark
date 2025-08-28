@@ -48,7 +48,7 @@ const PinnedChatCard: React.FC<PinnedChatCardProps> = ({
 
       {chat.description && (
         <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
-          {chat.description}
+          About: {chat.description}
         </p>
       )}
 

@@ -10,14 +10,26 @@ export async function getBookmarks(chatId: string): Promise<BookmarkData[]> {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     const allBookmarks: Record<string, BookmarkData[]> = stored ? JSON.parse(stored) : {};
-    console.log("chatId received by local storage:", chatId);
-    console.log("Bookmarks of current chat:", allBookmarks[chatId]);
-    return allBookmarks[chatId] || [];
+    const bookmarks = allBookmarks[chatId] || [];
+
+    // ✅ Normalize roles
+    return bookmarks.map((bm) => ({
+      ...bm,
+      role:
+        bm.role === "assistant"
+          ? "ChatGPT"
+          : bm.role === "user"
+          ? "User"
+          : bm.role === "all"
+          ? "All"
+          : bm.role,
+    }));
   } catch (error) {
     console.error("Error fetching bookmarks:", error);
     return [];
   }
 }
+
 
 /**
  * Save bookmarks for a specific chat
