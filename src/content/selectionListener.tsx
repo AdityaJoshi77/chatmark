@@ -140,14 +140,38 @@ function renderIcon(
   root.render(
     <div style={{ pointerEvents: "auto" }}>
       <BookmarkIcon
-        onClick={(e) => {
+        onClick={async (e) => {
           isIconClicked = true;
           e.stopPropagation();
+
           if ((window as any).addInstantBookmarkFn) {
-            (window as any).addInstantBookmarkFn(snippet, bubble);
+            await (window as any).addInstantBookmarkFn(snippet, bubble);
           }
-          removeIcon();
-          // 1️⃣ Clear the selection
+
+          // Replace icons with "Bookmark Saved!" message
+          if (root && iconContainer) {
+            root.render(
+              <div
+                style={{
+                  pointerEvents: "none",
+                  padding: "8px 12px",
+                  background: "#10b981",
+                  color: "white",
+                  borderRadius: "6px",
+                  fontSize: "12px",
+                  fontWeight: 500,
+                  textAlign: "center",
+                }}
+              >
+                Bookmark Saved!
+              </div>
+            );
+
+            // Remove after 2 seconds
+            setTimeout(() => removeIcon(), 2000);
+          }
+
+          // Clear selection
           clearSelection();
         }}
       />
@@ -158,7 +182,6 @@ function renderIcon(
           e.stopPropagation();
           openPanelWithSnippet(snippet, bubble);
           removeIcon();
-          // 2️⃣ Clear the selection
           clearSelection();
         }}
       />
@@ -176,4 +199,3 @@ function removeIcon() {
   iconContainer = null;
   root = null;
 }
-
