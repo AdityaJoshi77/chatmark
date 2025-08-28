@@ -42,12 +42,12 @@ const Bookmark = ({bm, chatId, bookmarks, handleBookmarkClick, setBookmarks}: Bo
         </button>
       </div>
 
-      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
+      <p className="text-xs text-gray-700 dark:text-gray-300 mb-2 line-clamp-2">
         About: {bm.title}
       </p>
 
       <div className="flex justify-between items-center">
-        <span className="text-xs px-2 py-0.5 rounded text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700">
+        <span className="text-xs px-2 py-0.5 rounded text-gray-500 dark:text-gray-200 bg-gray-100 dark:bg-gray-700">
           {bm.role}
         </span>
         <span className="text-xs text-gray-400 dark:text-gray-500">

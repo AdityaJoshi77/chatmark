@@ -47,7 +47,7 @@ const PinnedChatCard: React.FC<PinnedChatCardProps> = ({
       </div>
 
       {chat.description && (
-        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
+        <p className="text-xs text-gray-700 dark:text-gray-300 mb-2 line-clamp-2">
           About: {chat.description}
         </p>
       )}
@@ -57,7 +57,7 @@ const PinnedChatCard: React.FC<PinnedChatCardProps> = ({
           {chat.tags.map((tag) => (
             <span
               key={tag}
-              className="text-xs px-2 py-0.5 rounded text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700"
+              className="text-xs px-2 py-0.5 rounded text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700"
             >
               {tag}
             </span>

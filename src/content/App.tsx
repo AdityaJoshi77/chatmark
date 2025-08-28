@@ -154,7 +154,8 @@ function App() {
   );
   const filteredPinnedChats = pinnedChats
     .filter(
-      (chat) => tagFilter === "All Tags" || (chat.tags || []).includes(tagFilter)
+      (chat) =>
+        tagFilter === "All Tags" || (chat.tags || []).includes(tagFilter)
     )
     .filter((chat) =>
       [chat.title, chat.description]
@@ -274,7 +275,7 @@ function App() {
               <div className="flex space-x-2 mb-4">
                 <button
                   onClick={() => setIsPinnedMode(!isPinnedMode)}
-                  className="flex items-center space-x-1 px-2 py-1 text-xs rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors duration-200"
+                  className="flex items-center space-x-1 px-2 py-1 text-xs rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-100 transition-colors duration-200"
                 >
                   {isPinnedMode ? (
                     <MdBookmark size={12} />
@@ -290,7 +291,7 @@ function App() {
                   (!isPinnedMode && bookmarks.length)) && (
                   <button
                     onClick={() => setSortLatest(!sortLatest)}
-                    className="flex items-center space-x-1 px-2 py-1 text-xs rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors duration-200"
+                    className="flex items-center space-x-1 px-2 py-1 text-xs rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-100 transition-colors duration-200"
                   >
                     <MdSort size={12} />
                     <span>{sortLatest ? "Latest" : "Oldest"}</span>
