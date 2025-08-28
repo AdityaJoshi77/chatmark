@@ -156,6 +156,12 @@ function App() {
     .filter(
       (chat) => tagFilter === "all" || (chat.tags || []).includes(tagFilter)
     )
+    .filter((chat) =>
+      [chat.title, chat.description]
+        .join(" ")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+    )
     .sort((a, b) =>
       sortLatest
         ? new Date(b.datePinned).getTime() - new Date(a.datePinned).getTime()
@@ -294,7 +300,11 @@ function App() {
                 {!isPinnedMode && (
                   <FilterSelect
                     value={roleFilter + " " + "Messages"}
-                    options={["All Messages", "User Messages", "ChatGPT Messages"]}
+                    options={[
+                      "All Messages",
+                      "User Messages",
+                      "ChatGPT Messages",
+                    ]}
                     onChange={(val: string) =>
                       setRoleFilter(
                         val.split(" ")[0] as "All" | "User" | "ChatGPT"
