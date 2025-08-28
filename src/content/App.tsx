@@ -287,8 +287,8 @@ function App() {
                   </span>
                 </button>
 
-                {((isPinnedMode && pinnedChats.length) ||
-                  (!isPinnedMode && bookmarks.length)) && (
+                {((isPinnedMode && pinnedChats.length > 0) ||
+                  (!isPinnedMode && bookmarks.length > 0)) && (
                   <button
                     onClick={() => setSortLatest(!sortLatest)}
                     className="flex items-center space-x-1 px-2 py-1 text-xs rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-100 transition-colors duration-200"
@@ -298,7 +298,7 @@ function App() {
                   </button>
                 )}
 
-                {!isPinnedMode && (
+                {!isPinnedMode && bookmarks.length > 0 && (
                   <FilterSelect
                     value={roleFilter + " " + "Messages"}
                     options={[
@@ -311,7 +311,6 @@ function App() {
                         val.split(" ")[0] as "All" | "User" | "ChatGPT"
                       )
                     }
-                    // label="Filter"
                   />
                 )}
 
@@ -320,7 +319,6 @@ function App() {
                     value={tagFilter}
                     options={["All Tags", ...uniqueTags]}
                     onChange={setTagFilter}
-                    // label="Category"
                   />
                 )}
               </div>
