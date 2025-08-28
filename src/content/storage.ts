@@ -1,6 +1,7 @@
-import type { BookmarkData } from "./types";
+import type { BookmarkData, PinnedChat } from "./types";
 
 const STORAGE_KEY = "chatmark_bookmarks";
+const PINNED_CHATS_KEY = "chatmark_pinned_chats";
 
 /**
  * Get bookmarks for a specific chat
@@ -38,6 +39,62 @@ export async function saveBookmarks(chatId: string, bookmarks: BookmarkData[]): 
     console.error("Error saving bookmarks:", error);
   }
 }
+
+/**
+ * Save a chat as a pinned chat
+ */
+export async function savePinnedChat(pinnedChat: Omit<PinnedChat, "datePinned">): Promise<void> {
+  try {
+    const stored = localStorage.getItem(PINNED_CHATS_KEY);
+    const pinnedChats: PinnedChat[] = stored ? JSON.parse(stored) : [];
+
+    // Create pinned chat with timestamp
+    const newPinnedChat: PinnedChat = {
+      ...pinnedChat,
+      datePinned: new Date().toISOString(),
+    };
+
+    // Avoid duplicates (replace if chat with same id exists)
+    const updatedPinnedChats = [
+      ...pinnedChats.filter(chat => chat.id !== newPinnedChat.id),
+      newPinnedChat,
+    ];
+
+    localStorage.setItem(PINNED_CHATS_KEY, JSON.stringify(updatedPinnedChats));
+  } catch (error) {
+    console.error("Error saving pinned chat:", error);
+  }
+}
+
+/**
+ * Get all pinned chats
+ */
+export async function getPinnedChats(): Promise<PinnedChat[]> {
+  try {
+    const stored = localStorage.getItem(PINNED_CHATS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error("Error fetching pinned chats:", error);
+    return [];
+  }
+}
+
+/**
+ * Remove a pinned chat by its ID
+ */
+export async function removePinnedChat(id: string): Promise<void> {
+  try {
+    const stored = localStorage.getItem(PINNED_CHATS_KEY);
+    const pinnedChats: PinnedChat[] = stored ? JSON.parse(stored) : [];
+
+    const updatedPinnedChats = pinnedChats.filter(chat => chat.id !== id);
+
+    localStorage.setItem(PINNED_CHATS_KEY, JSON.stringify(updatedPinnedChats));
+  } catch (error) {
+    console.error("Error removing pinned chat:", error);
+  }
+}
+
 
 /**
  * Get all bookmarks across all chats

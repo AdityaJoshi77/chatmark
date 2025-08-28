@@ -1,94 +1,44 @@
 import { useState } from "react";
-import { bubbleToSelector } from "./App";
-import { saveBookmarks } from "./storage";
-import type { BookmarkData } from "./types";
+import type { PinnedChat } from "./types";
+import { savePinnedChat } from "./storage";
 
 interface ChatPinFormProps {
-  snippet: string;
-  chatId: string;
-  anchor: HTMLElement | null;
-  bookmarks: BookmarkData[];
-  setSnippet: React.Dispatch<React.SetStateAction<string>>;
-  setAnchor: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
-  setBookmarks: React.Dispatch<React.SetStateAction<BookmarkData[]>>;
   setIsPanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowBookMarkForm: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowPinForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-// HANDLE SAVE
-const handleSave = async (
-  title: string,
-  snippet: string,
-  chatId: string,
-  anchor: HTMLElement | null,
-  bookmarks: BookmarkData[],
-  setSnippet: React.Dispatch<React.SetStateAction<string>>,
-  setIsPanelOpen: React.Dispatch<React.SetStateAction<boolean>>,
-  setAnchor: React.Dispatch<React.SetStateAction<HTMLElement | null>>,
-  setBookmarks: React.Dispatch<React.SetStateAction<BookmarkData[]>>,
-  setShowBookMarkForm: React.Dispatch<React.SetStateAction<boolean>>,
-  setTitle: React.Dispatch<React.SetStateAction<string>>
-) => {
-  if (!chatId) return; // <-- wait for chatId
-  if (!title.trim()) return;
+const ChatPinForm = ({ setIsPanelOpen, setShowPinForm }: ChatPinFormProps) => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const url = window.location.href;
+  const chatId = url.split("/c/")[1];
 
-  const newBookmark: BookmarkData = {
-    id: Date.now().toString(),
-    title,
-    snippet,
-    role: anchor?.dataset.messageAuthorRole! === "user" ? "User" : "ChatGPT",
-    timestamp: Date.now(),
-    anchor: bubbleToSelector(anchor), // ✅ safe null check
-    selectionText: snippet,
-    chatId,
-    url: window.location.href,
+  // HANDLE SAVE
+  const handleSave = async () => {
+    const chatToPin: Omit<PinnedChat, "datePinned"> = {
+      id: chatId,
+      title,
+      description,
+      url,
+    };
+
+    await savePinnedChat(chatToPin);
+    setTitle("");
+    setDescription("");
+    setShowPinForm(false);
+    setIsPanelOpen(false);
   };
 
-  const updated = [...bookmarks, newBookmark];
-  setBookmarks(updated);
-  setTitle("");
-  setSnippet("");
-  setAnchor(null);
-  setShowBookMarkForm(false);
-  setIsPanelOpen(false);
-
-  await saveBookmarks(chatId, updated);
-};
-
-const ChatPinForm = ({
-  snippet,
-  chatId,
-  anchor,
-  bookmarks,
-  setSnippet,
-  setIsPanelOpen,
-  setAnchor,
-  setBookmarks,
-  setShowBookMarkForm,
-}: ChatPinFormProps) => {
-  const [title, setTitle] = useState("");
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault(); // ✅ prevent page reload
-        handleSave(
-          title,
-          snippet,
-          chatId,
-          anchor,
-          bookmarks, // ✅ fixed missing argument
-          setSnippet,
-          setIsPanelOpen,
-          setAnchor,
-          setBookmarks,
-          setShowBookMarkForm,
-          setTitle
-        );
+        handleSave();
       }}
       className="border border-gray-200 dark:border-gray-600 rounded p-3 mb-4 bg-gray-50 dark:bg-gray-700"
     >
       <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-300">
-        Title
+        Title of the Chat:
       </label>
       <input
         type="text"
@@ -99,29 +49,42 @@ const ChatPinForm = ({
              placeholder-gray-400 dark:placeholder-gray-500
              focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600
              transition-colors duration-200 mb-3"
-        placeholder="Enter title..."
+        placeholder="Enter a title..."
         autoFocus
       />
 
+      <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-300">
+        Reason to Pin {"(Optional)"}:
+      </label>
       <input
         type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
         className="w-full px-3 py-2 text-sm rounded border border-gray-200 dark:border-gray-600
              bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
              placeholder-gray-400 dark:placeholder-gray-500
              focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600
              transition-colors duration-200 mb-3"
-        placeholder="Enter reason to pin..."
+        placeholder="Why are you pinning this chat ..."
       />
+
+      <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-300">
+        Chat's URL:
+      </label>
+      <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-2 mb-3">
+        <p className="text-xs text-gray-600 dark:text-gray-400 italic">
+          "{url}"
+        </p>
+      </div>
 
       <div className="flex justify-end space-x-2">
         <button
           type="button" // ✅ prevent accidental submit on cancel
           onClick={() => {
-            setSnippet("");
+            setTitle("");
+            setDescription("");
             setIsPanelOpen(false);
-            setShowBookMarkForm(false);
+            setShowPinForm(false);
           }}
           className="px-3 py-1 text-xs bg-gray-900 dark:bg-gray-600 text-white
                hover:bg-gray-800 dark:hover:bg-gray-500 rounded
@@ -131,7 +94,7 @@ const ChatPinForm = ({
         </button>
         <button
           type="submit" // ✅ submits the form
-          disabled={!title.trim() || !chatId}
+          disabled={!title.trim()}
           className="px-3 py-1 text-xs text-gray-600 dark:text-black
                 bg-gray-300 dark:bg-gray-500
                hover:bg-gray-100 dark:hover:bg-gray-300 rounded

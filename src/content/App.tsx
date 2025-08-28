@@ -155,7 +155,7 @@ function App() {
                      transition-all duration-200 z-50"
           onClick={() => {
             setIsPanelOpen(true);
-            setShowBookMarkForm(true);
+            setShowPinForm(true);
           }}
           title="Pin this Chat"
         >
@@ -195,7 +195,7 @@ function App() {
             </button>
           </div>
 
-          {!showBookMarkForm && (
+          {!showBookMarkForm && !showPinForm && (
             <>
               {/* SEARCH BAR */}
               <div className="relative mb-3">
@@ -277,8 +277,16 @@ function App() {
             />
           )}
 
+          {/* CHAT PINNING FORM */}
+          {showPinForm && (
+            <ChatPinForm
+                setIsPanelOpen={setIsPanelOpen}
+                setShowPinForm={setShowPinForm}
+            />
+          )}
+
           {/* THE BOOKMARKS */}
-          {!showBookMarkForm && (
+          {!showBookMarkForm && !showPinForm && (
             <div className="flex-1 overflow-hidden">
               {filteredBookmarks.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-32 text-center">
