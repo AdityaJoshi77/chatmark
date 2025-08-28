@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { MdSearch, MdSort, MdBookmark, MdClose } from "react-icons/md";
+import { MdSearch, MdSort, MdBookmark, MdClose, MdPushPin } from "react-icons/md";
 import { VscPinned } from "react-icons/vsc";
 import { RiUnpinFill } from "react-icons/ri";
 import type { BookmarkData, PinnedChat } from "./types";
@@ -214,7 +214,7 @@ function App() {
           <div className="flex justify-between items-center pb-3 mb-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-2">
               {isPinnedMode ? (
-                <VscPinned
+                <MdPushPin
                   size={16}
                   className="text-gray-600 dark:text-gray-300"
                 />
@@ -255,14 +255,34 @@ function App() {
                 />
               </div>
 
+              {/* OPTION BUTTONS SORT/FILTER */}
+
+              {/* BOOKMARKS / PINNNED CHATS */}
               <div className="flex space-x-2 mb-4">
                 <button
-                  onClick={() => setSortLatest(!sortLatest)}
+                  onClick={() => setIsPinnedMode(!isPinnedMode)}
                   className="flex items-center space-x-1 px-2 py-1 text-xs rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors duration-200"
                 >
-                  <MdSort size={12} />
-                  <span>{sortLatest ? "Latest" : "Oldest"}</span>
+                  {isPinnedMode ? (
+                    <MdBookmark size={12} />
+                  ) : (
+                    <MdPushPin size={12} />
+                  )}
+                  <span>
+                    {isPinnedMode ? "View Bookmarks" : "View Pinned Chats"}
+                  </span>
                 </button>
+
+                {((isPinnedMode && pinnedChats.length) ||
+                  (!isPinnedMode && bookmarks.length)) && (
+                  <button
+                    onClick={() => setSortLatest(!sortLatest)}
+                    className="flex items-center space-x-1 px-2 py-1 text-xs rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors duration-200"
+                  >
+                    <MdSort size={12} />
+                    <span>{sortLatest ? "Latest" : "Oldest"}</span>
+                  </button>
+                )}
 
                 {!isPinnedMode && (
                   <FilterSelect
@@ -285,19 +305,9 @@ function App() {
                     // label="Category"
                   />
                 )}
-
-                <button
-                  onClick={() => setIsPinnedMode(!isPinnedMode)}
-                  className="flex items-center space-x-1 px-2 py-1 text-xs rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors duration-200"
-                >
-                  <MdSort size={12} />
-                  <span>
-                    {isPinnedMode ? "Pinned Chats" : "Chat Bookmarks"}
-                  </span>
-                </button>
               </div>
 
-              {/* List */}
+              {/* LIST OF ITEMS*/}
               <div className="flex-1 overflow-hidden">
                 {isPinnedMode ? (
                   filteredPinnedChats.length === 0 ? (
@@ -334,7 +344,7 @@ function App() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {searchQuery
                         ? "No matches"
-                        : "No bookmarks for this Chat"}
+                        : "No bookmarks for this chat"}
                     </p>
                   </div>
                 ) : (

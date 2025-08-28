@@ -1,7 +1,8 @@
-import { HiOutlineTrash } from "react-icons/hi2";
+
 import type { PinnedChat } from "./types";
 import { removePinnedChat } from "./storage";
 import { formatTime } from "./App";
+import { RiUnpinFill } from "react-icons/ri";
 
 interface PinnedChatCardProps {
   chat: PinnedChat;
@@ -41,7 +42,7 @@ const PinnedChatCard: React.FC<PinnedChatCardProps> = ({
                      rounded transition-all duration-200"
           title="Unpin"
         >
-          <HiOutlineTrash size={20} />
+          <RiUnpinFill size={20} />
         </button>
       </div>
 
