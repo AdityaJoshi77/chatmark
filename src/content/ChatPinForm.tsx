@@ -52,7 +52,7 @@ const ChatPinForm = ({ setIsPanelOpen, setShowPinForm, setPinnedChats, setShowPi
       }}
       className="border border-gray-200 dark:border-gray-600 rounded p-3 mb-4 bg-gray-50 dark:bg-gray-700"
     >
-      <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-300">
+      <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-100">
         Title of the Chat:
       </label>
       <input
@@ -68,7 +68,7 @@ const ChatPinForm = ({ setIsPanelOpen, setShowPinForm, setPinnedChats, setShowPi
         autoFocus
       />
 
-      <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-300">
+      <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-100">
         Reason to Pin (Optional):
       </label>
       <input
@@ -83,7 +83,7 @@ const ChatPinForm = ({ setIsPanelOpen, setShowPinForm, setPinnedChats, setShowPi
         placeholder="Why are you pinning this chat..."
       />
 
-      <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-300">
+      <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-100">
         Tags (Optional, comma-separated):
       </label>
       <input
@@ -98,7 +98,7 @@ const ChatPinForm = ({ setIsPanelOpen, setShowPinForm, setPinnedChats, setShowPi
         placeholder="e.g. AI, Learning, Coding"
       />
 
-      <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-300">
+      <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-100">
         Chat's URL:
       </label>
       <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-2 mb-3">
