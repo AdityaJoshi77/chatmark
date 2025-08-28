@@ -29,4 +29,4 @@ function injectApp() {
 // Delay the injection a bit to let the DOM settle
 setTimeout(() => {
   injectApp();
-}, 1000); // you can experiment: 500ms, 800ms, 1500ms
+}, 3000); // you can experiment: 500ms, 800ms, 1500ms
