@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { MdSearch, MdSort, MdBookmark, MdClose } from "react-icons/md";
 import { VscPinned } from "react-icons/vsc";
+import { RiUnpinFill } from "react-icons/ri";
 import type { BookmarkData, PinnedChat } from "./types";
-import { getBookmarks, getPinnedChats } from "./storage";
+import { getBookmarks, getPinnedChats, removePinnedChat } from "./storage";
 import { scrollToAndHighlight } from "./scrollAndHighlight";
 import Bookmark from "./Bookmark";
 import BookmarkSaveForm from "./BookmarkSaveForm";
@@ -19,7 +20,9 @@ function App() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [bookmarks, setBookmarks] = useState<BookmarkData[]>([]);
   const [pinnedChats, setPinnedChats] = useState<PinnedChat[]>([]);
+
   const [showPinOption, setShowPinOption] = useState<boolean>(true);
+
   const [chatId, setChatId] = useState<string>("");
   const [snippet, setSnippet] = useState("");
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
@@ -71,6 +74,12 @@ function App() {
     };
     loadPinned();
   }, []);
+
+  useEffect(() => {
+    if (!chatId) return;
+    const existingChat = pinnedChats.find((pc) => pc.id === chatId);
+    setShowPinOption(!existingChat);
+  }, [pinnedChats, chatId]);
 
   useEffect(() => {
     const mainContent = document.querySelector(
@@ -163,7 +172,7 @@ function App() {
             <MdBookmark size={18} />
           </button>
 
-          {showPinOption && (
+          {showPinOption ? (
             <button
               className="fixed top-44 right-4 flex items-center justify-center bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 w-10 h-10 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200 z-50"
               onClick={() => {
@@ -174,6 +183,20 @@ function App() {
               title="Pin this Chat"
             >
               <VscPinned size={18} />
+            </button>
+          ) : (
+            <button
+              className="fixed top-44 right-4 flex items-center justify-center bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 w-10 h-10 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200 z-50"
+              onClick={async (e) => {
+                e.stopPropagation();
+                const updated = pinnedChats.filter((c) => c.id !== chatId);
+                setPinnedChats(updated);
+                await removePinnedChat(chatId);
+                setShowPinOption(true);
+              }}
+              title="Unpin this Chat"
+            >
+              <RiUnpinFill size={18} />
             </button>
           )}
         </>
@@ -351,7 +374,7 @@ function App() {
               setIsPanelOpen={setIsPanelOpen}
               setShowPinForm={setShowPinForm}
               setPinnedChats={setPinnedChats}
-              setShowPinOption = {setShowPinOption}
+              setShowPinOption={setShowPinOption}
             />
           )}
         </div>
