@@ -87,6 +87,9 @@ function App() {
 
       // 2️⃣ Persist to storage
       await addBookmark(chatId, newBookmark);
+
+      // setIsPanelOpen(true);
+      // setIsPinnedMode(false);
     });
 
     // expose to window for content script

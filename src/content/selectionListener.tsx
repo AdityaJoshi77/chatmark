@@ -7,26 +7,35 @@ import { openPanelWithSnippet } from "./App";
 
 let iconContainer: HTMLDivElement | null = null;
 let root: Root | null = null;
+// 1️⃣ Add a flag to track if the click originated from an icon
+let isIconClicked = false;
 
 export function initSelectionListener() {
   document.addEventListener("mouseup", handleMouseUp);
   document.addEventListener("keyup", handleKeyUp);
-  document.addEventListener("mousedown", handleMouseDown, true); // use capture phase
+  document.addEventListener("pointerdown", handlePointerDown, true);
 }
 
-function handleMouseDown(event: MouseEvent) {
+function handlePointerDown(event: PointerEvent) {
   const target = event.target as HTMLElement;
-  // Remove icon if clicked anywhere except inside the container
-  if (
-    !target.closest(".bookmark-icon-btn") &&
-    !target.closest(".add-note-icon-btn")
-  ) {
+  const isIcon = target.closest(".bookmark-icon-wrapper");
+  if (isIcon) {
+    // 2️⃣ Set the flag if the click is on an icon
+    isIconClicked = true;
+  } else {
+    // 3️⃣ Reset the flag for other clicks
+    isIconClicked = false;
     removeIcon();
   }
 }
 
 function handleMouseUp() {
-  setTimeout(() => checkAndShowIcon(), 50);
+  setTimeout(() => {
+    // 4️⃣ Check the flag before showing the icon
+    if (!isIconClicked) {
+      checkAndShowIcon();
+    }
+  }, 50);
 }
 
 function handleKeyUp(event: KeyboardEvent) {
@@ -74,7 +83,6 @@ function checkAndShowIcon() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
   const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 
-  // Calculate position with fallback strategies
   let left = rect.right + scrollLeft + gap;
   let top = rect.top + scrollTop;
 
@@ -97,7 +105,7 @@ function checkAndShowIcon() {
     left = rect.right + scrollLeft - iconWidth;
   }
 
-  // Ensure within document bounds
+  // Keep within viewport
   const maxLeft = window.innerWidth + scrollLeft - iconWidth - 10;
   const maxTop = window.innerHeight + scrollTop - iconHeight - 10;
   left = Math.max(scrollLeft + 10, Math.min(left, maxLeft));
@@ -112,36 +120,38 @@ function renderIcon(
   snippet: string,
   bubble: HTMLElement
 ) {
-  // Remove previous icon if exists
   removeIcon();
 
   iconContainer = document.createElement("div");
+  iconContainer.className = "bookmark-icon-wrapper";
   iconContainer.style.position = "absolute";
   iconContainer.style.top = `${top}px`;
   iconContainer.style.left = `${left}px`;
   iconContainer.style.width = "32px";
-  iconContainer.style.height = "32px";
+  iconContainer.style.height = "auto";
   iconContainer.style.zIndex = "10000";
-  iconContainer.style.pointerEvents = "auto"; // only icon is clickable
+  iconContainer.style.pointerEvents = "none";
   document.body.appendChild(iconContainer);
 
   root = createRoot(iconContainer);
   root.render(
-    <div
-      className="bookmark-icons-wrapper flex flex-col gap-1"
-      onMouseDown={(e) => e.stopPropagation()}
-    >
+    <div style={{ pointerEvents: "auto" }}>
       <BookmarkIcon
         onClick={(e) => {
+          // 5️⃣ Set the flag here too, for good measure
+          isIconClicked = true;
           e.stopPropagation();
-          const fn = (window as any).addInstantBookmarkFn;
-          if (fn) fn(snippet, bubble);
-          setTimeout(removeIcon, 0); // ensures unmount after click finishes
+          if ((window as any).addInstantBookmarkFn) {
+            (window as any).addInstantBookmarkFn(snippet, bubble);
+          }
+          removeIcon();
         }}
       />
 
       <AddNoteIcon
         onClick={(e) => {
+          // 6️⃣ And here
+          isIconClicked = true;
           e.stopPropagation();
           openPanelWithSnippet(snippet, bubble);
           removeIcon();
@@ -160,4 +170,26 @@ function removeIcon() {
   }
   iconContainer = null;
   root = null;
+}
+
+{
+  /* <div className="flex flex-row w-[70px] h-full items-center justify-start gap-1" style={{ pointerEvents: "auto" }}>
+      <BookmarkIcon
+        onClick={(e) => {
+          e.stopPropagation(); // prevent outside detection
+          if ((window as any).addInstantBookmarkFn) {
+            (window as any).addInstantBookmarkFn(snippet, bubble);
+          }
+          removeIcon(); // reliably remove icon
+        }}
+      />
+
+      <AddNoteIcon
+        onClick={(e) => {
+          e.stopPropagation();
+          openPanelWithSnippet(snippet, bubble);
+          removeIcon(); // remove icon when opening form
+        }}
+      />
+    </div> */
 }
