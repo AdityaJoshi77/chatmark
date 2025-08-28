@@ -98,7 +98,7 @@ const ChatPinForm = ({ setIsPanelOpen, setShowPinForm, setPinnedChats, setShowPi
         placeholder="e.g. AI, Learning, Coding"
       />
 
-      <label className="block text-xs font-medium mb-2 text-gray-700 dark:text-gray-100">
+      <label className="block text-xs font-medium dark:font-normal mb-2 text-gray-700 dark:text-gray-100">
         Chat's URL:
       </label>
       <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-2 mb-3">
