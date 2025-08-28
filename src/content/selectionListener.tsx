@@ -7,7 +7,6 @@ import { openPanelWithSnippet } from "./App";
 
 let iconContainer: HTMLDivElement | null = null;
 let root: Root | null = null;
-// 1️⃣ Add a flag to track if the click originated from an icon
 let isIconClicked = false;
 
 export function initSelectionListener() {
@@ -20,10 +19,8 @@ function handlePointerDown(event: PointerEvent) {
   const target = event.target as HTMLElement;
   const isIcon = target.closest(".bookmark-icon-wrapper");
   if (isIcon) {
-    // 2️⃣ Set the flag if the click is on an icon
     isIconClicked = true;
   } else {
-    // 3️⃣ Reset the flag for other clicks
     isIconClicked = false;
     removeIcon();
   }
@@ -31,7 +28,6 @@ function handlePointerDown(event: PointerEvent) {
 
 function handleMouseUp() {
   setTimeout(() => {
-    // 4️⃣ Check the flag before showing the icon
     if (!isIconClicked) {
       checkAndShowIcon();
     }
@@ -114,6 +110,13 @@ function checkAndShowIcon() {
   renderIcon(top, left, selection.toString(), parentBubble);
 }
 
+function clearSelection() {
+  const selection = window.getSelection();
+  if (selection) {
+    selection.removeAllRanges();
+  }
+}
+
 function renderIcon(
   top: number,
   left: number,
@@ -138,23 +141,25 @@ function renderIcon(
     <div style={{ pointerEvents: "auto" }}>
       <BookmarkIcon
         onClick={(e) => {
-          // 5️⃣ Set the flag here too, for good measure
           isIconClicked = true;
           e.stopPropagation();
           if ((window as any).addInstantBookmarkFn) {
             (window as any).addInstantBookmarkFn(snippet, bubble);
           }
           removeIcon();
+          // 1️⃣ Clear the selection
+          clearSelection();
         }}
       />
 
       <AddNoteIcon
         onClick={(e) => {
-          // 6️⃣ And here
           isIconClicked = true;
           e.stopPropagation();
           openPanelWithSnippet(snippet, bubble);
           removeIcon();
+          // 2️⃣ Clear the selection
+          clearSelection();
         }}
       />
     </div>
@@ -172,24 +177,3 @@ function removeIcon() {
   root = null;
 }
 
-{
-  /* <div className="flex flex-row w-[70px] h-full items-center justify-start gap-1" style={{ pointerEvents: "auto" }}>
-      <BookmarkIcon
-        onClick={(e) => {
-          e.stopPropagation(); // prevent outside detection
-          if ((window as any).addInstantBookmarkFn) {
-            (window as any).addInstantBookmarkFn(snippet, bubble);
-          }
-          removeIcon(); // reliably remove icon
-        }}
-      />
-
-      <AddNoteIcon
-        onClick={(e) => {
-          e.stopPropagation();
-          openPanelWithSnippet(snippet, bubble);
-          removeIcon(); // remove icon when opening form
-        }}
-      />
-    </div> */
-}
