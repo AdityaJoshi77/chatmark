@@ -166,7 +166,7 @@ function App() {
             onClick={() => {
               setIsPanelOpen(true);
               setShowPinForm(true);
-              setIsPinnedMode(true);
+              // setIsPinnedMode(true);
             }}
             title="Pin this Chat"
           >
@@ -253,9 +253,18 @@ function App() {
                     value={tagFilter}
                     options={["all", ...uniqueTags]}
                     onChange={setTagFilter}
-                    label="Category"
+                    // label="Category"
                   />
                 )}
+
+                <button
+                  onClick={() => setIsPinnedMode(!isPinnedMode)}
+                  className="flex items-center space-x-1 px-2 py-1 text-xs rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors duration-200"
+                >
+                  <MdSort size={12} />
+                  <span>{isPinnedMode ? "Pinned Chats" : "Chat Bookmarks"}</span>
+                </button>
+
               </div>
 
               {/* List */}
@@ -333,6 +342,7 @@ function App() {
             <ChatPinForm
               setIsPanelOpen={setIsPanelOpen}
               setShowPinForm={setShowPinForm}
+              setPinnedChats={setPinnedChats}
             />
           )}
         </div>

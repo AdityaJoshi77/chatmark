@@ -43,16 +43,13 @@ export async function saveBookmarks(chatId: string, bookmarks: BookmarkData[]): 
 /**
  * Save a chat as a pinned chat
  */
-export async function savePinnedChat(pinnedChat: Omit<PinnedChat, "datePinned">): Promise<void> {
+export async function savePinnedChat(pinnedChat: PinnedChat): Promise<void> {
   try {
     const stored = localStorage.getItem(PINNED_CHATS_KEY);
     const pinnedChats: PinnedChat[] = stored ? JSON.parse(stored) : [];
 
     // Create pinned chat with timestamp
-    const newPinnedChat: PinnedChat = {
-      ...pinnedChat,
-      datePinned: new Date().toISOString(),
-    };
+    const newPinnedChat: PinnedChat = pinnedChat;
 
     // Avoid duplicates (replace if chat with same id exists)
     const updatedPinnedChats = [

@@ -5,9 +5,10 @@ import { savePinnedChat } from "./storage";
 interface ChatPinFormProps {
   setIsPanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setShowPinForm: React.Dispatch<React.SetStateAction<boolean>>;
+  setPinnedChats: React.Dispatch<React.SetStateAction<PinnedChat[]>>;
 }
 
-const ChatPinForm = ({ setIsPanelOpen, setShowPinForm }: ChatPinFormProps) => {
+const ChatPinForm = ({ setIsPanelOpen, setShowPinForm, setPinnedChats }: ChatPinFormProps) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState("");
@@ -16,11 +17,12 @@ const ChatPinForm = ({ setIsPanelOpen, setShowPinForm }: ChatPinFormProps) => {
 
   // HANDLE SAVE
   const handleSave = async () => {
-    const chatToPin: Omit<PinnedChat, "datePinned"> = {
+    const chatToPin: PinnedChat = {
       id: chatId,
       title,
       description,
       url,
+      datePinned: new Date().toISOString(),
       tags: tags
         .split(",")
         .map((tag) => tag.trim())
@@ -28,6 +30,7 @@ const ChatPinForm = ({ setIsPanelOpen, setShowPinForm }: ChatPinFormProps) => {
     };
 
     await savePinnedChat(chatToPin);
+    setPinnedChats((prev) => [...prev, chatToPin])
 
     // Reset form
     setTitle("");
