@@ -7,9 +7,15 @@ interface PinnedChatCardProps {
   chat: PinnedChat;
   pinnedChats: PinnedChat[];
   setPinnedChats: React.Dispatch<React.SetStateAction<PinnedChat[]>>;
+  setShowPinOption: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const PinnedChatCard: React.FC<PinnedChatCardProps> = ({ chat, pinnedChats, setPinnedChats }) => {
+const PinnedChatCard: React.FC<PinnedChatCardProps> = ({
+  chat,
+  pinnedChats,
+  setPinnedChats,
+  setShowPinOption,
+}) => {
   return (
     <div
       key={chat.id}
@@ -28,6 +34,7 @@ const PinnedChatCard: React.FC<PinnedChatCardProps> = ({ chat, pinnedChats, setP
             const updated = pinnedChats.filter((c) => c.id !== chat.id);
             setPinnedChats(updated);
             await removePinnedChat(chat.id);
+            setShowPinOption(true);
           }}
           className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 
                      hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 

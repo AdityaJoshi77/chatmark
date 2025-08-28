@@ -6,9 +6,10 @@ interface ChatPinFormProps {
   setIsPanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setShowPinForm: React.Dispatch<React.SetStateAction<boolean>>;
   setPinnedChats: React.Dispatch<React.SetStateAction<PinnedChat[]>>;
+  setShowPinOption: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ChatPinForm = ({ setIsPanelOpen, setShowPinForm, setPinnedChats }: ChatPinFormProps) => {
+const ChatPinForm = ({ setIsPanelOpen, setShowPinForm, setPinnedChats, setShowPinOption }: ChatPinFormProps) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState("");
@@ -38,6 +39,9 @@ const ChatPinForm = ({ setIsPanelOpen, setShowPinForm, setPinnedChats }: ChatPin
     setTags("");
     setShowPinForm(false);
     setIsPanelOpen(false);
+
+    // Remove the pin icon from the chatgpt's screen
+    setShowPinOption(false);
   };
 
   return (

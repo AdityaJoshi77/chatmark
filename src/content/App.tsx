@@ -19,15 +19,16 @@ function App() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [bookmarks, setBookmarks] = useState<BookmarkData[]>([]);
   const [pinnedChats, setPinnedChats] = useState<PinnedChat[]>([]);
+  const [showPinOption, setShowPinOption] = useState<boolean>(true);
   const [chatId, setChatId] = useState<string>("");
   const [snippet, setSnippet] = useState("");
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [showBookMarkForm, setShowBookMarkForm] = useState<boolean>(false);
   const [showPinForm, setShowPinForm] = useState<boolean>(false);
   const [sortLatest, setSortLatest] = useState<boolean>(true);
-  const [roleFilter, setRoleFilter] = useState<"all" | "user" | "assistant" | "ChatGPT">(
-    "all"
-  );
+  const [roleFilter, setRoleFilter] = useState<
+    "all" | "user" | "assistant" | "ChatGPT"
+  >("all");
   const [tagFilter, setTagFilter] = useState("all");
   const [isPinnedMode, setIsPinnedMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -161,17 +162,20 @@ function App() {
           >
             <MdBookmark size={18} />
           </button>
-          <button
-            className="fixed top-44 right-4 flex items-center justify-center bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 w-10 h-10 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200 z-50"
-            onClick={() => {
-              setIsPanelOpen(true);
-              setShowPinForm(true);
-              // setIsPinnedMode(true);
-            }}
-            title="Pin this Chat"
-          >
-            <VscPinned size={18} />
-          </button>
+
+          {showPinOption && (
+            <button
+              className="fixed top-44 right-4 flex items-center justify-center bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 w-10 h-10 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200 z-50"
+              onClick={() => {
+                setIsPanelOpen(true);
+                setShowPinForm(true);
+                // setIsPinnedMode(true);
+              }}
+              title="Pin this Chat"
+            >
+              <VscPinned size={18} />
+            </button>
+          )}
         </>
       )}
 
@@ -242,7 +246,9 @@ function App() {
                     value={roleFilter}
                     options={["all", "user", "assistant"]}
                     onChange={(val: string) =>
-                      setRoleFilter(val as "all" | "user" | "assistant" | "ChatGPT")
+                      setRoleFilter(
+                        val as "all" | "user" | "assistant" | "ChatGPT"
+                      )
                     }
                     // label="Filter"
                   />
@@ -262,9 +268,10 @@ function App() {
                   className="flex items-center space-x-1 px-2 py-1 text-xs rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors duration-200"
                 >
                   <MdSort size={12} />
-                  <span>{isPinnedMode ? "Pinned Chats" : "Chat Bookmarks"}</span>
+                  <span>
+                    {isPinnedMode ? "Pinned Chats" : "Chat Bookmarks"}
+                  </span>
                 </button>
-
               </div>
 
               {/* List */}
@@ -284,12 +291,13 @@ function App() {
                     </div>
                   ) : (
                     <div className="space-y-2 h-full overflow-y-auto custom-scrollbar">
-                      {filteredPinnedChats.map((chat, index, array) => (
+                      {filteredPinnedChats.map((chat, index) => (
                         <PinnedChatCard
                           key={index}
                           chat={chat}
-                          pinnedChats={array}
+                          pinnedChats={pinnedChats}
                           setPinnedChats={setPinnedChats}
+                          setShowPinOption={setShowPinOption}
                         />
                       ))}
                     </div>
@@ -343,6 +351,7 @@ function App() {
               setIsPanelOpen={setIsPanelOpen}
               setShowPinForm={setShowPinForm}
               setPinnedChats={setPinnedChats}
+              setShowPinOption = {setShowPinOption}
             />
           )}
         </div>
