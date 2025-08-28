@@ -22,23 +22,43 @@
         title="Rate us on the Web Store"
       />
 
-      <h1 class="popup-title">Welcome to ChatMark</h1>
-      <p class="popup-text">Here’s how to use ChatMark:</p>
+      <h1 class="popup-title">ChatMark - Remember What Matters</h1>
+      <p class="popup-text">How to use ChatMark:</p>
       <ul class="popup-list">
-        <li>Highlight a chat message to save it.</li>
+        <li>Highlight a chat message to bookmark it.</li>
         <li>
           <span style="display: flex; flex-direction: row">
             Look for the bookmark bubble on the top right of the chat screen to
             open the panel for saved bookmarks.
             <span class="bubble-preview">
-              <button class="bubble-button" title="Open ChatMark" id="bubble_button">
+              <button
+                class="bubble-button"
+                title="Open ChatMark"
+                id="bubble_button"
+              >
                 <span class="material-icons">bookmark</span>
               </button>
             </span>
           </span>
         </li>
-        <li>If you don’t see the bubble, refresh the page once.</li>
+        <li>
+          <span style="display: flex; flex-direction: row">
+            Use the pin button to keep important chats handy.
+            <span class="bubble-preview">
+              <button
+                class="bubble-button"
+                title="Pin this Chat"
+                id="pin_button"
+              >
+                <!-- Using RiUnpinFill equivalent (📌 emoji or a fallback icon) -->
+                <span class="material-icons">push_pin</span>
+              </button>
+            </span>
+          </span>
+        </li>
+        <li>⚠️ If you don’t see the bubble, refresh the page once.</li>
       </ul>
+
       <script src="popup.js"></script>
     </div>
   </body>
