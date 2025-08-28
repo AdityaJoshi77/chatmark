@@ -39,7 +39,7 @@ function App() {
     "All"
   );
 
-  const [tagFilter, setTagFilter] = useState("all");
+  const [tagFilter, setTagFilter] = useState("All Tags");
   const [isPinnedMode, setIsPinnedMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const panelRef = useRef<HTMLDivElement>(null);
@@ -154,7 +154,7 @@ function App() {
   );
   const filteredPinnedChats = pinnedChats
     .filter(
-      (chat) => tagFilter === "all" || (chat.tags || []).includes(tagFilter)
+      (chat) => tagFilter === "All Tags" || (chat.tags || []).includes(tagFilter)
     )
     .filter((chat) =>
       [chat.title, chat.description]
