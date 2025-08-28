@@ -23,5 +23,8 @@ export interface PinnedChat {
   description?: string; // Optional short description/context about the chat
   url: string;          // Full URL of the chat
   datePinned: string;   // ISO timestamp of when the chat was pinned
+  tags?: string[];       // Categories/tags applied by the user
 }
+
+
 

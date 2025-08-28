@@ -1,7 +1,7 @@
 import { HiOutlineTrash } from "react-icons/hi2";
 import type { BookmarkData } from "./types";
 import { saveBookmarks } from "./storage";
-import { formatTime } from "./App";
+import {formatTime}  from "./App";
 
 interface BookmarkProps{
     key?: number;
