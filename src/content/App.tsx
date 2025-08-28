@@ -307,7 +307,7 @@ function App() {
                 {isPinnedMode && pinnedChats.length > 0 && (
                   <FilterSelect
                     value={tagFilter}
-                    options={["all", ...uniqueTags]}
+                    options={["All", ...uniqueTags]}
                     onChange={setTagFilter}
                     // label="Category"
                   />
