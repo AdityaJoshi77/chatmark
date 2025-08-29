@@ -138,7 +138,10 @@ function renderIcon(
 
   root = createRoot(iconContainer);
   root.render(
-    <div className="flex flex-row items-center justify-start gap-[0.5] w-[70px] h-full" style={{ pointerEvents: "auto" }}>
+    <div
+      className="flex flex-row items-center justify-start gap-[0.5] w-[70px] h-full"
+      style={{ pointerEvents: "auto" }}
+    >
       <BookmarkIcon
         onClick={async (e) => {
           isIconClicked = true;
@@ -163,13 +166,24 @@ function renderIcon(
                   fontWeight: 500,
                   textAlign: "center",
                 }}
+                ref={(el) => {
+                  if (!el) return;
+
+                  // Trigger fade-out
+                  setTimeout(() => {
+                    el.style.opacity = "0";
+                  }, 50);
+
+                  // Remove icon after 2 seconds
+                  setTimeout(() => removeIcon(), 3000);
+                }}
               >
                 Bookmark Saved!
               </div>
             );
 
-            // Remove after 2 seconds
-            setTimeout(() => removeIcon(), 3000);
+            // // Remove after 2 seconds
+            // setTimeout(() => removeIcon(), 3000);
           }
 
           // Clear selection
