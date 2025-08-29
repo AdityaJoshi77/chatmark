@@ -165,25 +165,23 @@ function renderIcon(
                   fontSize: "12px",
                   fontWeight: 500,
                   textAlign: "center",
+                  transition: "opacity 3s ease", // <-- smooth fade
                 }}
                 ref={(el) => {
                   if (!el) return;
 
-                  // Trigger fade-out
-                  setTimeout(() => {
+                  // Trigger fade out on the next tick
+                  requestAnimationFrame(() => {
                     el.style.opacity = "0";
-                  }, 50);
+                  });
 
-                  // Remove icon after 2 seconds
+                  // Remove icon after 3 seconds
                   setTimeout(() => removeIcon(), 3000);
                 }}
               >
                 Bookmark Saved!
               </div>
             );
-
-            // // Remove after 2 seconds
-            // setTimeout(() => removeIcon(), 3000);
           }
 
           // Clear selection
