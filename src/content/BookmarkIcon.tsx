@@ -1,13 +1,13 @@
-
-// src/content/AddNoteIcon.tsx
+// src/content/BookmarkIcon.tsx
 import React, { useEffect, useState } from "react";
-import { AiFillThunderbolt } from "react-icons/ai";
+import type { IconType } from "react-icons/lib";
 
-interface BookmarkIconProps {
+interface AddNoteIconProps {
   onClick: (e: React.MouseEvent) => void;
+  BookmarkIcon: IconType;
 }
 
-const BookmarkIcon: React.FC<BookmarkIconProps> = ({ onClick }) => {
+const AddNoteIcon: React.FC<AddNoteIconProps> = ({ onClick, BookmarkIcon }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -66,11 +66,11 @@ const BookmarkIcon: React.FC<BookmarkIconProps> = ({ onClick }) => {
         `}
       </style>
 
-      <button className="bookmark-icon-btn" style={styles} title="Instant Bookmark" onClick={onClick}>
-        <AiFillThunderbolt size={18} color={isDarkMode ? "#d1d5db" : "#374151"} />
+      <button className="bookmark-icon-btn" style={styles} title="Add Note" onClick={onClick}>
+        <BookmarkIcon size={18} color={isDarkMode ? "#d1d5db" : "#374151"} />
       </button>
     </>
   );
 };
 
-export default BookmarkIcon;
+export default AddNoteIcon;

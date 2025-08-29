@@ -1,9 +1,10 @@
 // src/content/selectionListener.tsx
 import { createRoot } from "react-dom/client";
 import type { Root } from "react-dom/client";
-import AddNoteIcon from "./AddNoteIcon";
 import BookmarkIcon from "./BookmarkIcon";
+import {AiFillThunderbolt} from "react-icons/ai"
 import { openPanelWithSnippet } from "./App";
+import { FaPencil } from "react-icons/fa6";
 
 let iconContainer: HTMLDivElement | null = null;
 let root: Root | null = null;
@@ -142,7 +143,9 @@ function renderIcon(
       className="flex flex-row items-center justify-start gap-[0.5] w-[70px] h-full"
       style={{ pointerEvents: "auto" }}
     >
+      {/* Instant Bookmark Icon */}
       <BookmarkIcon
+        BookmarkIcon={AiFillThunderbolt}
         onClick={async (e) => {
           isIconClicked = true;
           e.stopPropagation();
@@ -189,7 +192,9 @@ function renderIcon(
         }}
       />
 
-      <AddNoteIcon
+      {/* Add Note Icon */}
+      <BookmarkIcon
+        BookmarkIcon={FaPencil}
         onClick={(e) => {
           isIconClicked = true;
           e.stopPropagation();
