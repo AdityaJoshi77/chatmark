@@ -1,5 +1,6 @@
 // src/content/BookmarkIcon.tsx
 import React, { useEffect, useState } from "react";
+import { FaPencil } from "react-icons/fa6";
 import type { IconType } from "react-icons/lib";
 
 interface AddNoteIconProps {
@@ -22,8 +23,14 @@ const AddNoteIcon: React.FC<AddNoteIconProps> = ({ onClick, BookmarkIcon }) => {
     checkDarkMode();
 
     const observer = new MutationObserver(checkDarkMode);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     mediaQuery.addEventListener("change", checkDarkMode);
@@ -66,7 +73,16 @@ const AddNoteIcon: React.FC<AddNoteIconProps> = ({ onClick, BookmarkIcon }) => {
         `}
       </style>
 
-      <button className="bookmark-icon-btn" style={styles} title="Add Note" onClick={onClick}>
+      <button
+        className="bookmark-icon-btn"
+        style={styles}
+        title={
+          BookmarkIcon.toString() === FaPencil.toString()
+            ? "Add Note"
+            : "Instant Bookmark"
+        }
+        onClick={onClick}
+      >
         <BookmarkIcon size={18} color={isDarkMode ? "#d1d5db" : "#374151"} />
       </button>
     </>
