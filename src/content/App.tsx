@@ -7,13 +7,11 @@ import {
   MdPushPin,
 } from "react-icons/md";
 import { VscPinned } from "react-icons/vsc";
-import { RiUnpinFill } from "react-icons/ri";
 import type { BookmarkData, PinnedChat } from "./types";
 import {
   addBookmark,
   getBookmarks,
   getPinnedChats,
-  removePinnedChat,
 } from "./storage";
 import { scrollToAndHighlight } from "./scrollAndHighlight";
 import Bookmark from "./Bookmark";
@@ -371,6 +369,7 @@ function App() {
                           key={index}
                           chat={chat}
                           pinnedChats={pinnedChats}
+                          setIsPanelOpen={setIsPanelOpen}
                           setPinnedChats={setPinnedChats}
                           setShowPinOption={setShowPinOption}
                         />
