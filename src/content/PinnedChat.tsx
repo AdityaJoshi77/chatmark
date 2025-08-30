@@ -3,6 +3,7 @@ import type { PinnedChat } from "./types";
 import { removePinnedChat } from "./storage";
 import { formatTime } from "./App";
 import { RiUnpinFill } from "react-icons/ri";
+import { ImNewTab } from "react-icons/im";
 
 interface PinnedChatCardProps {
   chat: PinnedChat;
@@ -23,14 +24,29 @@ const PinnedChatCard: React.FC<PinnedChatCardProps> = ({
       className="group p-3 rounded border border-gray-200 dark:border-gray-700
                  bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750
                  cursor-pointer transition-colors duration-200 mr-2"
-      // onClick={() => window.open(chat.url, "_blank")}
+      title="Open Chat in Current Tab"
       onClick={() => (window.location.href = chat.url)}
-
     >
+
+      {/* Title Area */}
       <div className="flex justify-between items-start mb-2">
         <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate flex-1 mr-2">
           {chat.title}
         </h3>
+
+        <button
+          onClick={async (e) => {
+            e.stopPropagation();
+            window.open(chat.url, "_blank");
+          }}
+          className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 
+                     hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-700 
+                     rounded transition-all duration-200"
+          title="Open Chat in New Tab"
+        >
+          <ImNewTab size={20} />
+        </button>
+
         <button
           onClick={async (e) => {
             e.stopPropagation();
