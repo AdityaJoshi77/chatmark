@@ -21,6 +21,9 @@ import BookmarkSaveForm from "./BookmarkSaveForm";
 import ChatPinForm from "./ChatPinForm";
 import FilterSelect from "./FilterSelect";
 import PinnedChatCard from "./PinnedChat";
+import { BubbleBookmark } from "./BubbleBookmark";
+import { BubblePinChat } from "./BubblePinChat";
+import { BubbleUnpinChat } from "./BubbleUnpinChat";
 
 let openPanelFn: (snippet?: string, bubble?: HTMLElement) => void;
 export function openPanelWithSnippet(snippet?: string, bubble?: HTMLElement) {
@@ -217,44 +220,24 @@ function App() {
       {/* Floating Buttons */}
       {!isPanelOpen && (
         <>
-          <button
-            className="fixed top-32 right-4 flex items-center justify-center bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 w-10 h-10 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200 z-50"
-            onClick={() => {
-              setIsPanelOpen(true);
-              setShowBookMarkForm(false);
-              setIsPinnedMode(false);
-            }}
-            title="Open ChatMark"
-          >
-            <MdBookmark size={18} />
-          </button>
+          <BubbleBookmark
+            setIsPanelOpen={setIsPanelOpen}
+            setIsPinnedMode={setIsPinnedMode}
+            setShowBookMarkForm={setShowBookMarkForm}
+          />
 
           {showPinOption ? (
-            <button
-              className="fixed top-44 right-4 flex items-center justify-center bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 w-10 h-10 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200 z-50"
-              onClick={() => {
-                setIsPanelOpen(true);
-                setShowPinForm(true);
-                // setIsPinnedMode(true);
-              }}
-              title="Pin this Chat"
-            >
-              <VscPinned size={18} />
-            </button>
+            <BubblePinChat
+              setIsPanelOpen={setIsPanelOpen}
+              setShowPinForm={setShowPinForm}
+            />
           ) : (
-            <button
-              className="fixed top-44 right-4 flex items-center justify-center bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 w-10 h-10 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200 z-50"
-              onClick={async (e) => {
-                e.stopPropagation();
-                const updated = pinnedChats.filter((c) => c.id !== chatId);
-                setPinnedChats(updated);
-                await removePinnedChat(chatId);
-                setShowPinOption(true);
-              }}
-              title="Unpin this Chat"
-            >
-              <RiUnpinFill size={18} />
-            </button>
+            <BubbleUnpinChat
+              pinnedChats={pinnedChats}
+              chatId={chatId}
+              setPinnedChats={setPinnedChats}
+              setShowPinOption={setShowPinOption}
+            />
           )}
         </>
       )}
@@ -378,7 +361,7 @@ function App() {
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         {tagFilter !== "all"
                           ? "No chats for this category"
-                          : "No pinned chats"}
+                          : `No Saved Chats. Pin chats with the ${<BubblePinChat/>} icon on the chat to save chats`}
                       </p>
                     </div>
                   ) : (
@@ -403,7 +386,7 @@ function App() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {searchQuery
                         ? "No matches"
-                        : "No bookmarks for this chat"}
+                        : "No bookmarks for this chat. Select a snippet from the text to bookmark."}
                     </p>
                   </div>
                 ) : (

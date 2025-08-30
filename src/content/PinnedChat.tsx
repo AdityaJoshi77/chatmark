@@ -40,7 +40,7 @@ const PinnedChatCard: React.FC<PinnedChatCardProps> = ({
             window.open(chat.url, "_blank");
           }}
           className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 
-                     hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-700 
+                     hover:text-yellow-500 hover:bg-gray-100 dark:hover:bg-gray-700 
                      rounded transition-all duration-200"
           title="Open Chat in New Tab"
         >
@@ -58,7 +58,7 @@ const PinnedChatCard: React.FC<PinnedChatCardProps> = ({
           className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 
                      hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 
                      rounded transition-all duration-200"
-          title="Unpin"
+          title="Unsave Chat"
         >
           <RiUnpinFill size={20} />
         </button>

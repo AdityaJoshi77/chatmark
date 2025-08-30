@@ -44,7 +44,7 @@ const Bookmark = ({
           className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 
                    hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 
                    rounded transition-all duration-200"
-          title="Delete"
+          title="Delete Bookmark"
         >
           <HiOutlineTrash size={18} />
         </button>
@@ -57,7 +57,7 @@ const Bookmark = ({
       )}
 
       <div className="flex justify-between items-center">
-        <span className="text-xs px-2 py-0.5 rounded text-gray-500 dark:text-gray-200 bg-gray-100 dark:bg-gray-700">
+        <span className="text-xs px-2 py-0.5 rounded text-gray-500 dark:text-gray-200 bg-gray-100 dark:bg-gray-700" title={`${bm.role}'s message`}>
           {bm.role}
         </span>
         <span className="text-xs text-gray-400 dark:text-gray-500">
