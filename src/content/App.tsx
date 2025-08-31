@@ -288,7 +288,7 @@ function App() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search..."
+                  placeholder={`Search ${isPinnedMode ? 'saved chat': 'bookmark'}...`}
                   className="w-full pl-7 pr-3 py-2 text-sm rounded border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-300 transition-colors duration-200"
                 />
               </div>
@@ -307,7 +307,7 @@ function App() {
                     <MdPushPin size={12} />
                   )}
                   <span>
-                    {isPinnedMode ? "View Bookmarks" : "View Pinned Chats"}
+                    {isPinnedMode ? "View Bookmarks" : "View Saved Chats"}
                   </span>
                 </button>
 
