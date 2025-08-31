@@ -352,7 +352,7 @@ function App() {
                 {isPinnedMode ? (
                   filteredPinnedChats.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-32 text-center">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-gray-500 dark:text-gray-200">
                         {tagFilter === "all" ? (
                           "No chats for this category"
                         ) : (
@@ -382,7 +382,7 @@ function App() {
                   )
                 ) : filteredBookmarks.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-32 text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-gray-500 dark:text-gray-200">
                       {searchQuery ? (
                         "No matches"
                       ) : (
