@@ -6,13 +6,11 @@ import {
   MdClose,
   MdPushPin,
 } from "react-icons/md";
-import { VscPinned } from "react-icons/vsc";
+import { FaPencil } from "react-icons/fa6";
+import {AiFillThunderbolt} from "react-icons/ai"
+import BookmarkIcon from "./BookmarkIcon";
 import type { BookmarkData, PinnedChat } from "./types";
-import {
-  addBookmark,
-  getBookmarks,
-  getPinnedChats,
-} from "./storage";
+import { addBookmark, getBookmarks, getPinnedChats } from "./storage";
 import { scrollToAndHighlight } from "./scrollAndHighlight";
 import Bookmark from "./Bookmark";
 import BookmarkSaveForm from "./BookmarkSaveForm";
@@ -288,7 +286,9 @@ function App() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={`Search ${isPinnedMode ? 'saved chat': 'bookmark'}...`}
+                  placeholder={`Search ${
+                    isPinnedMode ? "saved chat" : "bookmark"
+                  }...`}
                   className="w-full pl-7 pr-3 py-2 text-sm rounded border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-300 transition-colors duration-200"
                 />
               </div>
@@ -352,14 +352,18 @@ function App() {
                 {isPinnedMode ? (
                   filteredPinnedChats.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-32 text-center">
-                      <VscPinned
-                        size={24}
-                        className="text-gray-300 dark:text-gray-600 mb-2"
-                      />
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {tagFilter !== "all"
-                          ? "No chats for this category"
-                          : `No Saved Chats. Pin chats with the ${<BubblePinChat/>} icon on the chat to save chats`}
+                        {tagFilter === "all" ? (
+                          "No chats for this category"
+                        ) : (
+                          <span className="flex flex-col items-center justify-center gap-2">
+                            <p>No Saved Chats. Pin chats with the</p>
+                            <span className="flex flex-row items-center justify-center gap-2">
+                              <BubblePinChat setOnRight={false} /> icon
+                            </span>
+                            <p>on the chat to save chats.</p>
+                          </span>
+                        )}
                       </p>
                     </div>
                   ) : (
@@ -378,14 +382,23 @@ function App() {
                   )
                 ) : filteredBookmarks.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-32 text-center">
-                    <MdBookmark
-                      size={24}
-                      className="text-gray-300 dark:text-gray-600 mb-2"
-                    />
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {searchQuery
-                        ? "No matches"
-                        : "No bookmarks for this chat.\nSelect a snippet from the chat's text to bookmark."}
+                      {searchQuery ? (
+                        "No matches"
+                      ) : (
+                        <span className="flex flex-col items-center justify-center gap-2">
+                          <p>No bookmarks for this chat.</p>
+                          <p>Select a text-snippet from the chat and click on the </p>
+                          <span className="flex flex-row items-center justify-center gap-2">
+                            <BookmarkIcon BookmarkIcon={FaPencil}/> 
+                            <BookmarkIcon BookmarkIcon={AiFillThunderbolt}/>
+                            icons
+                          </span>
+                          <p>
+                            to make a bookmark.
+                          </p>
+                        </span>
+                      )}
                     </p>
                   </div>
                 ) : (

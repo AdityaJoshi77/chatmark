@@ -3,12 +3,13 @@ import React, { useEffect, useState } from "react";
 import { FaPencil } from "react-icons/fa6";
 import type { IconType } from "react-icons/lib";
 
-interface AddNoteIconProps {
-  onClick: (e: React.MouseEvent) => void;
+interface BookMarkIconProps {
+  onClick?: (e: React.MouseEvent) => void;
   BookmarkIcon: IconType;
+  applyStyles?: boolean;
 }
 
-const AddNoteIcon: React.FC<AddNoteIconProps> = ({ onClick, BookmarkIcon }) => {
+const BookmarkIcon: React.FC<BookMarkIconProps> = ({ onClick, BookmarkIcon, applyStyles = true }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -75,7 +76,7 @@ const AddNoteIcon: React.FC<AddNoteIconProps> = ({ onClick, BookmarkIcon }) => {
 
       <button
         className="bookmark-icon-btn"
-        style={styles}
+        style={applyStyles ? styles : undefined}
         title={
           BookmarkIcon.toString() === FaPencil.toString()
             ? "Add Note"
@@ -89,4 +90,4 @@ const AddNoteIcon: React.FC<AddNoteIconProps> = ({ onClick, BookmarkIcon }) => {
   );
 };
 
-export default AddNoteIcon;
+export default BookmarkIcon;
