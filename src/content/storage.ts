@@ -93,7 +93,6 @@ export async function savePinnedChat(pinnedChat: PinnedChat): Promise<void> {
     ];
 
     localStorage.setItem(PINNED_CHATS_KEY, JSON.stringify(updatedPinnedChats));
-    console.log('Pinned the Chat : ', pinnedChat);
   } catch (error) {
     console.error("Error saving pinned chat:", error);
   }
@@ -105,7 +104,6 @@ export async function savePinnedChat(pinnedChat: PinnedChat): Promise<void> {
 export async function getPinnedChats(): Promise<PinnedChat[]> {
   try {
     const stored = localStorage.getItem(PINNED_CHATS_KEY);
-    console.log('Users Pinned Chats : ', stored);
     return stored ? JSON.parse(stored) : [];
   } catch (error) {
     console.error("Error fetching pinned chats:", error);

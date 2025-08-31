@@ -385,7 +385,7 @@ function App() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {searchQuery
                         ? "No matches"
-                        : "No bookmarks for this chat. Select a snippet from the text to bookmark."}
+                        : "No bookmarks for this chat.\nSelect a snippet from the chat's text to bookmark."}
                     </p>
                   </div>
                 ) : (
