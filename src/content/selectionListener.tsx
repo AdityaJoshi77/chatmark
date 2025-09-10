@@ -140,7 +140,7 @@ function renderIcon(
   root = createRoot(iconContainer);
   root.render(
     <div
-      className="flex flex-row items-center justify-start gap-[0.5] w-[70px] h-full"
+      className="flex flex-row items-center justify-start gap-1 w-[70px] h-full"
       style={{ pointerEvents: "auto" }}
     >
       {/* Instant Bookmark Icon */}
