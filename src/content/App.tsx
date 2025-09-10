@@ -7,7 +7,7 @@ import {
   MdPushPin,
 } from "react-icons/md";
 import { FaPencil } from "react-icons/fa6";
-import {AiFillThunderbolt} from "react-icons/ai"
+import { AiFillThunderbolt } from "react-icons/ai";
 import BookmarkIcon from "./BookmarkIcon";
 import type { BookmarkData, PinnedChat } from "./types";
 import { addBookmark, getBookmarks, getPinnedChats } from "./storage";
@@ -39,7 +39,7 @@ function App() {
   const [pinnedChats, setPinnedChats] = useState<PinnedChat[]>([]);
 
   const [showPinOption, setShowPinOption] = useState<boolean>(true);
-
+  const [renderPinIcon, setRenderPinIcon] = useState<boolean>(false);
   const [chatId, setChatId] = useState<string>("");
   const [snippet, setSnippet] = useState("");
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
@@ -98,17 +98,28 @@ function App() {
   useEffect(() => {
     let lastId = "";
     const interval = setInterval(() => {
-      const id = window.location.href.split("/c/")[1] || "";
-      if (id !== lastId) {
-        lastId = id;
-        setChatId(id);
+      const currentURL = window.location.href;
+      const chatIdPresent = currentURL.indexOf("/c/");
+      if (chatIdPresent === -1) {
+        setChatId("");
+        setRenderPinIcon(false);
+      } else {
+        const id = currentURL.split("/c/")[1] || "";
+        if (id !== lastId) {
+          lastId = id;
+          setChatId(id);
+          setRenderPinIcon(true);
+        }
       }
     }, 500);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    if (!chatId) return;
+    if (!chatId) {
+      setBookmarks([]);
+      return;
+    }
     const loadBookmarks = async () => {
       const stored = await getBookmarks(chatId);
       setBookmarks(stored);
@@ -222,18 +233,22 @@ function App() {
             setShowBookMarkForm={setShowBookMarkForm}
           />
 
-          {showPinOption ? (
-            <BubblePinChat
-              setIsPanelOpen={setIsPanelOpen}
-              setShowPinForm={setShowPinForm}
-            />
+          {renderPinIcon ? (
+            showPinOption ? (
+              <BubblePinChat
+                setIsPanelOpen={setIsPanelOpen}
+                setShowPinForm={setShowPinForm}
+              />
+            ) : (
+              <BubbleUnpinChat
+                pinnedChats={pinnedChats}
+                chatId={chatId}
+                setPinnedChats={setPinnedChats}
+                setShowPinOption={setShowPinOption}
+              />
+            )
           ) : (
-            <BubbleUnpinChat
-              pinnedChats={pinnedChats}
-              chatId={chatId}
-              setPinnedChats={setPinnedChats}
-              setShowPinOption={setShowPinOption}
-            />
+            <></>
           )}
         </>
       )}
@@ -388,15 +403,15 @@ function App() {
                       ) : (
                         <span className="flex flex-col items-center justify-center gap-2">
                           <p>No bookmarks for this chat.</p>
-                          <p>Select a text-snippet from the chat and click on the </p>
+                          <p>
+                            Select a text-snippet from the chat and click on the{" "}
+                          </p>
                           <span className="flex flex-row items-center justify-center gap-2">
-                            <BookmarkIcon BookmarkIcon={FaPencil}/> 
-                            <BookmarkIcon BookmarkIcon={AiFillThunderbolt}/>
+                            <BookmarkIcon BookmarkIcon={FaPencil} />
+                            <BookmarkIcon BookmarkIcon={AiFillThunderbolt} />
                             icons
                           </span>
-                          <p>
-                            to make a bookmark.
-                          </p>
+                          <p>to make a bookmark.</p>
                         </span>
                       )}
                     </p>
