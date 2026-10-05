@@ -19,5 +19,9 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // Content scripts intentionally export helpers alongside the root component.
+      'react-refresh/only-export-components': 'off',
+    },
   },
 ])

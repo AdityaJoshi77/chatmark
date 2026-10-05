@@ -26,5 +26,13 @@ export interface PinnedChat {
   tags?: string[];       // Categories/tags applied by the user
 }
 
+declare global {
+  interface Window {
+    addInstantBookmarkFn?: (
+      snippet: string,
+      bubble: HTMLElement
+    ) => void | Promise<void>;
+  }
+}
 
 

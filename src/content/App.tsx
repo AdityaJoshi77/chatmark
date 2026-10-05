@@ -20,6 +20,11 @@ import PinnedChatCard from "./PinnedChat";
 import { BubbleBookmark } from "./BubbleBookmark";
 import { BubblePinChat } from "./BubblePinChat";
 import { BubbleUnpinChat } from "./BubbleUnpinChat";
+import {
+  getConversationId,
+  getMessageRole,
+  messageToSelector,
+} from "./chatDom";
 
 let openPanelFn: (snippet?: string, bubble?: HTMLElement) => void;
 export function openPanelWithSnippet(snippet?: string, bubble?: HTMLElement) {
@@ -28,7 +33,7 @@ export function openPanelWithSnippet(snippet?: string, bubble?: HTMLElement) {
 
 let addInstantBookmarkFn:
   | ((snippet: string, bubble: HTMLElement) => void)
-  | null = null;
+  | undefined;
 export function registerAddInstantBookmark(fn: typeof addInstantBookmarkFn) {
   addInstantBookmarkFn = fn;
 }
@@ -74,8 +79,7 @@ function App() {
         chatId,
         title: "", // empty for instant bookmark
         snippet,
-        role:
-          bubble.dataset.messageAuthorRole === "assistant" ? "ChatGPT" : "User",
+        role: getMessageRole(bubble),
         timestamp: Date.now(),
         anchor: bubbleToSelector(bubble),
         selectionText: snippet,
@@ -92,19 +96,18 @@ function App() {
     });
 
     // expose to window for content script
-    (window as any).addInstantBookmarkFn = addInstantBookmarkFn;
+    window.addInstantBookmarkFn = addInstantBookmarkFn;
   }, [chatId]);
 
   useEffect(() => {
     let lastId = "";
     const interval = setInterval(() => {
-      const currentURL = window.location.href;
-      const chatIdPresent = currentURL.indexOf("/c/");
-      if (chatIdPresent === -1) {
+      const id = getConversationId();
+      if (!id) {
+        lastId = "";
         setChatId("");
         setRenderPinIcon(false);
       } else {
-        const id = currentURL.split("/c/")[1] || "";
         if (id !== lastId) {
           lastId = id;
           setChatId(id);
@@ -140,22 +143,6 @@ function App() {
     const existingChat = pinnedChats.find((pc) => pc.id === chatId);
     setShowPinOption(!existingChat);
   }, [pinnedChats, chatId]);
-
-  useEffect(() => {
-    const mainContent = document.querySelector(
-      "main, .main, #root > div, body > div"
-    );
-    if (mainContent) {
-      (mainContent as HTMLElement).style.transition =
-        "margin-right 0.3s ease-out";
-      (mainContent as HTMLElement).style.marginRight = isPanelOpen
-        ? "320px"
-        : "0";
-    }
-    return () => {
-      if (mainContent) (mainContent as HTMLElement).style.marginRight = "0";
-    };
-  }, [isPanelOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -388,7 +375,6 @@ function App() {
                           key={index}
                           chat={chat}
                           pinnedChats={pinnedChats}
-                          setIsPanelOpen={setIsPanelOpen}
                           setPinnedChats={setPinnedChats}
                           setShowPinOption={setShowPinOption}
                         />
@@ -463,9 +449,7 @@ function App() {
 }
 
 export function bubbleToSelector(el: Element | null): string {
-  if (!el) return "";
-  const id = el.getAttribute("data-message-id");
-  return id ? `[data-message-id="${id}"]` : "";
+  return messageToSelector(el);
 }
 
 export const formatTime = (timestamp: number) => {

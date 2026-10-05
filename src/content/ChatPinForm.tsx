@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { PinnedChat } from "./types";
 import { savePinnedChat } from "./storage";
+import { getConversationId } from "./chatDom";
 
 interface ChatPinFormProps {
   setIsPanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -14,7 +15,7 @@ const ChatPinForm = ({ setIsPanelOpen, setShowPinForm, setPinnedChats, setShowPi
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState("");
   const url = window.location.href;
-  const chatId = url.split("/c/")[1];
+  const chatId = getConversationId();
 
   // HANDLE SAVE
   const handleSave = async () => {

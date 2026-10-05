@@ -5,14 +5,23 @@ import BookmarkIcon from "./BookmarkIcon";
 import {AiFillThunderbolt} from "react-icons/ai"
 import { openPanelWithSnippet } from "./App";
 import { FaPencil } from "react-icons/fa6";
+import { findMessageElement } from "./chatDom";
 
 let iconContainer: HTMLDivElement | null = null;
 let root: Root | null = null;
 let isIconClicked = false;
+let initialized = false;
+let selectionTimer: number | undefined;
 
 export function initSelectionListener() {
-  document.addEventListener("mouseup", handleMouseUp);
-  document.addEventListener("keyup", handleKeyUp);
+  if (initialized) return;
+  initialized = true;
+  // Capture phase is important: ChatGPT may stop pointer/mouse events inside
+  // its conversation UI before they bubble to document.
+  document.addEventListener("pointerup", handleSelectionFinished, true);
+  document.addEventListener("mouseup", handleSelectionFinished, true);
+  document.addEventListener("selectionchange", handleSelectionChange);
+  document.addEventListener("keyup", handleKeyUp, true);
   document.addEventListener("pointerdown", handlePointerDown, true);
 }
 
@@ -27,12 +36,22 @@ function handlePointerDown(event: PointerEvent) {
   }
 }
 
-function handleMouseUp() {
-  setTimeout(() => {
+function scheduleSelectionCheck(delay = 0) {
+  if (selectionTimer !== undefined) window.clearTimeout(selectionTimer);
+  selectionTimer = window.setTimeout(() => {
+    selectionTimer = undefined;
     if (!isIconClicked) {
       checkAndShowIcon();
     }
-  }, 50);
+  }, delay);
+}
+
+function handleSelectionFinished() {
+  scheduleSelectionCheck(25);
+}
+
+function handleSelectionChange() {
+  scheduleSelectionCheck(75);
 }
 
 function handleKeyUp(event: KeyboardEvent) {
@@ -42,7 +61,7 @@ function handleKeyUp(event: KeyboardEvent) {
       event.key
     )
   ) {
-    setTimeout(() => checkAndShowIcon(), 50);
+    scheduleSelectionCheck(25);
   }
 }
 
@@ -58,9 +77,7 @@ function checkAndShowIcon() {
   }
 
   const range = selection.getRangeAt(0);
-  const parentBubble = range.startContainer.parentElement?.closest(
-    "[data-message-author-role]"
-  ) as HTMLElement;
+  const parentBubble = findMessageElement(range.commonAncestorContainer);
 
   if (!parentBubble) {
     removeIcon();
@@ -77,11 +94,8 @@ function checkAndShowIcon() {
   const iconHeight = 32;
   const gap = 8;
 
-  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-
-  let left = rect.right + scrollLeft + gap;
-  let top = rect.top + scrollTop;
+  let left = rect.right + gap;
+  let top = rect.top;
 
   const spaceRight = window.innerWidth - rect.right;
   const spaceLeft = rect.left;
@@ -89,24 +103,24 @@ function checkAndShowIcon() {
   const spaceAbove = rect.top;
 
   if (spaceRight >= iconWidth + gap) {
-    left = rect.right + scrollLeft + gap;
-    top = rect.top + scrollTop;
+    left = rect.right + gap;
+    top = rect.top;
   } else if (spaceLeft >= iconWidth + gap) {
-    left = rect.left + scrollLeft - iconWidth - gap;
-    top = rect.top + scrollTop;
+    left = rect.left - iconWidth - gap;
+    top = rect.top;
   } else if (spaceBelow >= iconHeight + gap) {
-    top = rect.bottom + scrollTop + gap;
-    left = rect.right + scrollLeft - iconWidth;
+    top = rect.bottom + gap;
+    left = rect.right - iconWidth;
   } else if (spaceAbove >= iconHeight + gap) {
-    top = rect.top + scrollTop - iconHeight - gap;
-    left = rect.right + scrollLeft - iconWidth;
+    top = rect.top - iconHeight - gap;
+    left = rect.right - iconWidth;
   }
 
   // Keep within viewport
-  const maxLeft = window.innerWidth + scrollLeft - iconWidth - 10;
-  const maxTop = window.innerHeight + scrollTop - iconHeight - 10;
-  left = Math.max(scrollLeft + 10, Math.min(left, maxLeft));
-  top = Math.max(scrollTop + 10, Math.min(top, maxTop));
+  const maxLeft = window.innerWidth - iconWidth - 10;
+  const maxTop = window.innerHeight - iconHeight - 10;
+  left = Math.max(10, Math.min(left, maxLeft));
+  top = Math.max(10, Math.min(top, maxTop));
 
   renderIcon(top, left, selection.toString(), parentBubble);
 }
@@ -128,7 +142,7 @@ function renderIcon(
 
   iconContainer = document.createElement("div");
   iconContainer.className = "bookmark-icon-wrapper";
-  iconContainer.style.position = "absolute";
+  iconContainer.style.position = "fixed";
   iconContainer.style.top = `${top}px`;
   iconContainer.style.left = `${left}px`;
   iconContainer.style.width = "32px";
@@ -150,8 +164,8 @@ function renderIcon(
           isIconClicked = true;
           e.stopPropagation();
 
-          if ((window as any).addInstantBookmarkFn) {
-            await (window as any).addInstantBookmarkFn(snippet, bubble);
+          if (window.addInstantBookmarkFn) {
+            await window.addInstantBookmarkFn(snippet, bubble);
           }
 
           // Replace icons with "Bookmark Saved!" message
@@ -211,7 +225,9 @@ function removeIcon() {
   if (iconContainer) {
     try {
       if (root) root.unmount();
-    } catch {}
+    } catch {
+      // The host page may have removed the container before React can unmount it.
+    }
     iconContainer.remove();
   }
   iconContainer = null;

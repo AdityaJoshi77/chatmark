@@ -8,7 +8,6 @@ import { ImNewTab } from "react-icons/im";
 interface PinnedChatCardProps {
   chat: PinnedChat;
   pinnedChats: PinnedChat[];
-  setIsPanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setPinnedChats: React.Dispatch<React.SetStateAction<PinnedChat[]>>;
   setShowPinOption: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -16,7 +15,6 @@ interface PinnedChatCardProps {
 const PinnedChatCard: React.FC<PinnedChatCardProps> = ({
   chat,
   pinnedChats,
-  setIsPanelOpen,
   setPinnedChats,
   setShowPinOption,
 }) => {

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ChatMark – Remember What Matters",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Bookmark ChatGPT messages and pin entire chats with tags, making your conversations organized, searchable, and easy to revisit.",
   "icons": {
     "16": "icons/icons16.png",
@@ -25,5 +25,5 @@
     }
   ],
   "permissions": ["activeTab"],
-  "host_permissions": ["https://chatgpt.com/c/*"]
+  "host_permissions": ["https://chatgpt.com/*"]
 }

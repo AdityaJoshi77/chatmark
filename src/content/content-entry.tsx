@@ -9,18 +9,14 @@ import { initSelectionListener } from "./selectionListener";
 const rootId = "chatmark-root";
 
 function injectApp() {
-  const mainChatContainerSelector = 'main[class*="overflow-y-auto"]';
-  let mainChatContainer = document.querySelector(mainChatContainerSelector);
-
-  if (!mainChatContainer) {
-    mainChatContainer = document.body; // fallback
-  }
-
   if (document.getElementById(rootId)) return; // prevent duplicates
+  if (!document.body) return;
 
   const rootDiv = document.createElement("div");
   rootDiv.id = rootId;
-  mainChatContainer.appendChild(rootDiv);
+  // ChatGPT frequently replaces its main subtree during navigation and streaming.
+  // Mount directly under body so those rerenders cannot remove the extension.
+  document.body.appendChild(rootDiv);
 
   createRoot(rootDiv).render(<App />);
   initSelectionListener();
@@ -28,7 +24,8 @@ function injectApp() {
   console.log("✅ ChatMark injected!");
 }
 
-// Delay the injection a bit to let the DOM settle
-setTimeout(() => {
-  injectApp();
-}, 1250); // you can experiment: 500ms, 800ms, 1500ms
+injectApp();
+
+// Recover if ChatGPT (or another extension) replaces the body contents.
+const observer = new MutationObserver(injectApp);
+observer.observe(document.documentElement, { childList: true, subtree: true });

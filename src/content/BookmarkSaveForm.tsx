@@ -2,6 +2,7 @@ import { useState } from "react";
 import { bubbleToSelector } from "./App";
 import { saveBookmarks } from "./storage";
 import type { BookmarkData } from "./types";
+import { getMessageRole } from "./chatDom";
 
 interface BookmarkSaveFormProps {
   snippet: string;
@@ -36,7 +37,7 @@ const handleSave = async (
     id: Date.now().toString(),
     title,
     snippet,
-    role: anchor?.dataset.messageAuthorRole! === "user" ? "User" : "ChatGPT",
+    role: anchor ? getMessageRole(anchor) : "ChatGPT",
     timestamp: Date.now(),
     anchor: bubbleToSelector(anchor), // ✅ safe null check
     selectionText: snippet,
