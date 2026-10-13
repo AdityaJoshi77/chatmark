@@ -1,109 +1,44 @@
-export function scrollToAndHighlight(selector: string, snippet?: string) {
-  const bubble = document.querySelector(selector) as HTMLElement | null;
-  if (!bubble) return;
+import { findMessageByText } from "./chatDom";
 
-  console.log("Firing scrollToAndHighlight.....");
-  bubble.scrollIntoView({ behavior: "smooth", block: "center" });
+export function scrollToAndHighlight(selector?: string, snippet?: string) {
+  let target: HTMLElement | null = null;
 
-  // ✅ add border highlight immediately
-  bubble.style.outline = "2px solid yellow";
-
-  // ✅ create smooth blink animation for background
-  const style = document.createElement("style");
-  style.textContent = `
-    @keyframes smoothBlink {
-      0%, 100% { background-color: inherit; }
-      50% { background-color: #d1d5db; }
-    }
-    .blink-bg {
-      animation: smoothBlink 0.8s ease-in-out 3;
-    }
-  `;
-  document.head.appendChild(style);
-
-  // apply blink class
-  bubble.classList.add("blink-bg");
-
-  // ✅ snippet highlighting
-  if (snippet) {
-    const bubbleText = bubble.innerText;
-    const idx = bubbleText.indexOf(snippet);
-
-    if (idx >= 0) {
-      const range = document.createRange();
-
-      let charCount = 0;
-      let startNode: Node | null = null,
-        endNode: Node | null = null;
-      let startOffset = 0,
-        endOffset = 0;
-
-      const walker = document.createTreeWalker(bubble, NodeFilter.SHOW_TEXT);
-      while (walker.nextNode()) {
-        const node = walker.currentNode as Text;
-        const nextCharCount = charCount + node.nodeValue!.length;
-
-        if (!startNode && idx >= charCount && idx < nextCharCount) {
-          startNode = node;
-          startOffset = idx - charCount;
-        }
-
-        if (
-          !endNode &&
-          idx + snippet.length > charCount &&
-          idx + snippet.length <= nextCharCount
-        ) {
-          endNode = node;
-          endOffset = idx + snippet.length - charCount;
-          break;
-        }
-
-        charCount = nextCharCount;
-      }
-
-      if (startNode && endNode) {
-        range.setStart(startNode, startOffset);
-        range.setEnd(endNode, endOffset);
-
-        const mark = document.createElement("mark");
-        mark.style.backgroundColor = "yellow";
-        mark.style.color = "black";
-        mark.style.whiteSpace = "nowrap";   // ✅ no line breaks
-        mark.style.display = "inline";      // ✅ keep inline formatting
-
-        try {
-          range.surroundContents(mark);
-        } catch {
-          // ✅ Multi-node fallback: only highlight the first node
-          const frag = range.extractContents();
-
-          // Find the first text node inside the fragment
-          const walker = document.createTreeWalker(frag, NodeFilter.SHOW_TEXT);
-          if (walker.nextNode()) {
-            const firstTextNode = walker.currentNode;
-            const firstRange = document.createRange();
-            firstRange.selectNodeContents(firstTextNode);
-
-            const firstMark = document.createElement("mark");
-            firstMark.style.backgroundColor = "yellow";
-            firstMark.style.color = "black";
-            firstMark.style.whiteSpace = "nowrap";
-            firstMark.style.display = "inline";
-
-            firstRange.surroundContents(firstMark);
-          }
-
-          // Reinsert the fragment back into the DOM
-          range.insertNode(frag);
-        }
-      }
+  if (selector?.trim()) {
+    try {
+      target = document.querySelector(selector) as HTMLElement | null;
+    } catch (error) {
+      console.warn("ChatMark could not use the saved message selector:", error);
     }
   }
 
-  // ✅ remove border highlight + cleanup after ~4s
-  setTimeout(() => {
-    bubble.style.outline = "";
-    bubble.classList.remove("blink-bg");
-    style.remove();
-  }, 4000);
+  // Recover older bookmarks whose anchors are empty or whose DOM markers
+  // ChatGPT has since replaced.
+  if (!target && snippet) target = findMessageByText(snippet);
+  if (!target) {
+    console.warn("ChatMark could not find the bookmarked message.");
+    return false;
+  }
+
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  // ChatGPT owns these nodes through React. Animate without wrapping,
+  // extracting, or otherwise mutating its message content.
+  try {
+    target.animate(
+      [
+        { outline: "3px solid transparent", backgroundColor: "transparent" },
+        {
+          outline: "3px solid #facc15",
+          backgroundColor: "rgba(250, 204, 21, 0.22)",
+        },
+        { outline: "3px solid transparent", backgroundColor: "transparent" },
+      ],
+      { duration: 1800, easing: "ease-in-out" }
+    );
+  } catch (error) {
+    // Scrolling is the primary action; animation support must never break it.
+    console.debug("ChatMark highlight animation was unavailable:", error);
+  }
+
+  return true;
 }

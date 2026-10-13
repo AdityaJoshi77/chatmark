@@ -18,6 +18,18 @@ function escapeAttribute(value: string): string {
   return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
+function normalizeText(value: string): string {
+  return value
+    .normalize("NFKC")
+    .replace(/[\u00ad\u200b-\u200d\ufeff]/g, "")
+    .replace(/[‐‑‒–—―]/g, "-")
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLocaleLowerCase();
+}
+
 export function getConversationId(location = window.location): string {
   const match = location.pathname.match(/\/c\/([^/]+)/);
   return match ? decodeURIComponent(match[1]) : "";
@@ -78,10 +90,62 @@ export function messageToSelector(message: Element | null): string {
     if (value) return `[${attribute}="${escapeAttribute(value)}"]`;
   }
 
+  const parent = message.parentElement?.closest<HTMLElement>(
+    '[data-message-id], [data-turn-id], [data-testid^="conversation-turn-"]'
+  );
+  if (parent) return messageToSelector(parent);
+
   const nested = message.querySelector<HTMLElement>(
     '[data-message-id], [data-turn-id], [data-testid^="conversation-turn-"]'
   );
   if (nested) return messageToSelector(nested);
 
   return "";
+}
+
+export function findMessageByText(snippet: string): HTMLElement | null {
+  const needle = normalizeText(snippet);
+  if (!needle) return null;
+
+  const scope = document.querySelector("main") || document.body;
+  const candidates = Array.from(
+    scope.querySelectorAll<HTMLElement>(
+      [
+        "[data-message-id]",
+        "[data-turn-id]",
+        '[data-testid^="conversation-turn-"]',
+        '[data-testid="user-message"]',
+        '[data-testid="assistant-message"]',
+        ".markdown",
+        '[class*="markdown"]',
+        // ChatGPT no longer consistently exposes message/turn attributes.
+        // Search the semantic blocks that contain the rendered response too.
+        "p",
+        "li",
+        "blockquote",
+        "pre",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+      ].join(",")
+    )
+  ).filter((element) => {
+    if (element.closest("#chatmark-root")) return false;
+    return normalizeText(element.innerText || element.textContent || "").includes(
+      needle
+    );
+  });
+
+  // Prefer the smallest matching element; turn wrappers and nested Markdown
+  // containers often contain the same text.
+  return (
+    candidates.sort(
+      (a, b) =>
+        (a.innerText || a.textContent || "").length -
+        (b.innerText || b.textContent || "").length
+    )[0] || null
+  );
 }

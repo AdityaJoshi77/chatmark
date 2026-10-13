@@ -168,13 +168,12 @@ function App() {
     setShowPinForm(false);
   };
 
-  const handleBookmarkClick = async (bm: BookmarkData) => {
-    try {
+  const handleBookmarkClick = (bm: BookmarkData) => {
+    setIsPanelOpen(false);
+    // Let the panel close before calculating the final scroll position.
+    window.requestAnimationFrame(() => {
       scrollToAndHighlight(bm.anchor, bm.snippet);
-      setIsPanelOpen(false);
-    } catch (err) {
-      console.error("Failed to load highlighter:", err);
-    }
+    });
   };
 
   const filteredBookmarks = bookmarks
