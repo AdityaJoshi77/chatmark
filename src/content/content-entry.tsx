@@ -20,8 +20,6 @@ function injectApp() {
 
   createRoot(rootDiv).render(<App />);
   initSelectionListener();
-
-  console.log("✅ ChatMark 2.0.5 injected!");
 }
 
 injectApp();

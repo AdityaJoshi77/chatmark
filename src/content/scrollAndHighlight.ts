@@ -6,18 +6,15 @@ export function scrollToAndHighlight(selector?: string, snippet?: string) {
   if (selector?.trim()) {
     try {
       target = document.querySelector(selector) as HTMLElement | null;
-    } catch (error) {
-      console.warn("ChatMark could not use the saved message selector:", error);
+    } catch {
+      // A stale or malformed selector can still recover through snippet matching.
     }
   }
 
   // Recover older bookmarks whose anchors are empty or whose DOM markers
   // ChatGPT has since replaced.
   if (!target && snippet) target = findMessageByText(snippet);
-  if (!target) {
-    console.warn("ChatMark could not find the bookmarked message.");
-    return false;
-  }
+  if (!target) return false;
 
   target.scrollIntoView({ behavior: "smooth", block: "center" });
 
@@ -35,9 +32,8 @@ export function scrollToAndHighlight(selector?: string, snippet?: string) {
       ],
       { duration: 1800, easing: "ease-in-out" }
     );
-  } catch (error) {
+  } catch {
     // Scrolling is the primary action; animation support must never break it.
-    console.debug("ChatMark highlight animation was unavailable:", error);
   }
 
   return true;

@@ -68,10 +68,7 @@ const Bookmark = ({
       className="group p-3 rounded border border-gray-200 dark:border-gray-700
                 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750
                 cursor-pointer transition-colors duration-200 mr-2"
-      onClick={() => {
-        console.log("BOOKMARK DIV CLICKED", bm);
-        handleBookmarkClick(bm);
-      }}
+      onClick={() => handleBookmarkClick(bm)}
     >
       <div className="flex justify-between items-start mb-2">
         <h3
